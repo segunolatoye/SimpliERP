@@ -1,0 +1,19 @@
+# SimpliERP CODEOWNERS
+
+# Default owners
+*       @segunolatoye
+
+# Core Platform & Infrastructure
+/lib/           @core-platform-team
+/packages/      @core-platform-team
+/.github/       @devops-team
+next.config.mjs @devops-team
+
+# Domain Modules (Example assignment)
+/modules/inventory/     @inventory-team
+/modules/sales/         @sales-team
+/modules/core/          @core-platform-team
+
+# Security
+/lib/security/  @security-team
+/lib/auth/      @security-team

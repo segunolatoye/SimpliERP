@@ -1,0 +1,42 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "plugins": ["boundaries"],
+  "settings": {
+    "boundaries/include": ["app/**/*", "modules/**/*", "lib/**/*", "packages/**/*"],
+    "boundaries/elements": [
+      { "type": "app", "pattern": "app" },
+      { "type": "ui-kit", "pattern": "packages/ui-kit" },
+      { "type": "lib-db", "pattern": "lib/db.ts" },
+      { "type": "lib", "pattern": "lib" },
+      { "type": "module-repository", "pattern": "modules/*/*/repositories", "capture": ["moduleName"] },
+      { "type": "module", "pattern": "modules/*", "capture": ["moduleName"] }
+    ]
+  },
+  "rules": {
+    "no-console": "error",
+    "no-process-env": "error",
+    "boundaries/element-types": [
+      "error",
+      {
+        "default": "disallow",
+        "rules": [
+          { "from": "app", "allow": ["module", "lib", "lib-db", "ui-kit"] },
+          { "from": "module-repository", "allow": ["lib-db", "lib", "ui-kit", ["module", { "moduleName": "${from.moduleName}" }]] },
+          { "from": "module", "allow": ["lib", "ui-kit", ["module", { "moduleName": "${from.moduleName}" }]] },
+          { "from": "lib", "allow": ["ui-kit", "lib-db"] },
+          { "from": "ui-kit", "allow": [] },
+          { "from": "lib-db", "allow": [] }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["lib/config/index.ts", "lib/logger.ts", "lib/config.ts", "next.config.mjs"],
+      "rules": {
+        "no-console": "off",
+        "no-process-env": "off"
+      }
+    }
+  ]
+}

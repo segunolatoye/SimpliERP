@@ -1,0 +1,16 @@
+/** @type {import('typedoc').TypeDocOptions} */
+module.exports = {
+  entryPoints: [
+    "lib/modules/inventory/stock-ledger.ts",
+    "lib/modules/finance/journal-engine.ts",
+    "lib/modules/workflow.ts",
+    "lib/auth/index.ts",
+    "lib/security/audit.ts"
+  ],
+  out: "docs/api",
+  plugin: [],
+  name: "SimpliERP API Documentation",
+  hideGenerator: true,
+  excludePrivate: true,
+  excludeProtected: true
+};

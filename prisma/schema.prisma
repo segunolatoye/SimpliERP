@@ -1,0 +1,1678 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id                     String                   @id @default(uuid())
+  email                  String                   @unique
+  phone_number           String?
+  phone_verified         Boolean                  @default(false)
+  password_hash          String?
+  mfa_secret             String?
+  mfa_enabled            Boolean                  @default(false)
+  mfa_type               String?
+  mfa_phone              String?
+  mfa_last_otp           String?
+  created_at             DateTime                 @default(now())
+  updated_at             DateTime
+  deleted_at             DateTime?
+  is_superadmin          Boolean                  @default(false)
+  audit_logs             AuditLog[]
+  location_members       location_members[]
+  locations              Location[]
+  notifications          notifications[]
+  org_members            org_members[]
+  approval_requests      approval_requests[]
+  approval_request_steps approval_request_steps[]
+
+  @@index([deleted_at])
+  @@map("users")
+}
+
+model Role {
+  id                      String                    @id @default(uuid())
+  org_id                  String
+  name                    String
+  description             String?
+  permissions             Json
+  is_system               Boolean                   @default(false)
+  created_at              DateTime                  @default(now())
+  updated_at              DateTime
+  deleted_at              DateTime?
+  organisations           organisations             @relation(fields: [org_id], references: [id])
+  approval_workflow_steps approval_workflow_steps[]
+
+  @@unique([org_id, name])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+  @@map("roles")
+}
+
+model AuditLog {
+  id            String        @id @default(uuid())
+  org_id        String
+  user_id       String
+  module        String
+  action        String
+  entity_type   String
+  entity_id     String
+  diff          Json?
+  ip            String?
+  user_agent    String?
+  created_at    DateTime      @default(now())
+  organisations organisations @relation(fields: [org_id], references: [id])
+  users         User          @relation(fields: [user_id], references: [id])
+
+  @@index([org_id, created_at])
+  @@map("audit_logs")
+}
+
+model AccountingPeriod {
+  id            String        @id @default(uuid())
+  org_id        String
+  name          String
+  start_date    DateTime
+  end_date      DateTime
+  status        String        @default("open")
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@unique([org_id, name])
+  @@index([org_id, created_at])
+  @@map("accounting_periods")
+}
+
+model Item {
+  id                                            String                @id @default(uuid())
+  org_id                                        String
+  sku                                           String
+  name                                          String
+  description                                   String?
+  category_id                                   String?
+  unit_id                                       String?
+  reorder_point                                 Int                   @default(0)
+  preferred_vendor_id                           String?
+  lead_time_days                                Int                   @default(0)
+  cost_method                                   CostMethod            @default(fifo)
+  created_at                                    DateTime              @default(now())
+  updated_at                                    DateTime
+  deleted_at                                    DateTime?
+  brand                                         String?
+  cost_price                                    Float                 @default(0)
+  ean                                           String?
+  height                                        Float?
+  is_purchasable                                Boolean               @default(true)
+  is_returnable                                 Boolean               @default(false)
+  is_sellable                                   Boolean               @default(true)
+  isbn                                          String?
+  length                                        Float?
+  manufacturer                                  String?
+  mpn                                           String?
+  purchase_description                          String?
+  purchase_tax_id                               String?
+  sales_description                             String?
+  sales_tax_id                                  String?
+  selling_price                                 Float                 @default(0)
+  track_bin                                     Boolean               @default(false)
+  track_inventory                               Boolean               @default(true)
+  type                                          String                @default("Goods")
+  upc                                           String?
+  weight                                        Float?
+  width                                         Float?
+  dimension_unit                                String?               @default("cm")
+  weight_unit                                   String?               @default("kg")
+  inventory_account_id                          String?
+  purchase_account_id                           String?
+  sales_account_id                              String?
+  gst_rate                                      Float?
+  hsn_sac_code                                  String?
+  opening_stock_value                           Float?                @default(0)
+  tax_preference                                String?               @default("Taxable")
+  status                                        String                @default("Active")
+  item_group_id                                 String?
+  floor_price                                   Float?                @default(0)
+  track_lot                                     Boolean               @default(false)
+  track_serial                                  Boolean               @default(false)
+  count_session_lines                           count_session_lines[]
+  item_locations                                item_locations[]
+  item_variants                                 item_variants[]
+  item_categories                               item_categories?      @relation(fields: [category_id], references: [id])
+  accounts_items_inventory_account_idToaccounts accounts?             @relation("items_inventory_account_idToaccounts", fields: [inventory_account_id], references: [id])
+  item_groups                                   item_groups?          @relation(fields: [item_group_id], references: [id])
+  organisations                                 organisations         @relation(fields: [org_id], references: [id])
+  vendors                                       vendors?              @relation(fields: [preferred_vendor_id], references: [id])
+  accounts_items_purchase_account_idToaccounts  accounts?             @relation("items_purchase_account_idToaccounts", fields: [purchase_account_id], references: [id])
+  accounts_items_sales_account_idToaccounts     accounts?             @relation("items_sales_account_idToaccounts", fields: [sales_account_id], references: [id])
+  units                                         units?                @relation(fields: [unit_id], references: [id])
+  po_lines                                      po_lines[]
+  sales_return_lines                            sales_return_lines[]
+  so_lines                                      so_lines[]
+  stock_adjustments                             stock_adjustments[]
+  stock_ledger                                  stock_ledger[]
+
+  @@unique([org_id, sku])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+  @@map("items")
+}
+
+model Location {
+  id                                              String              @id @default(uuid())
+  org_id                                          String
+  name                                            String
+  address                                         String?
+  is_headquarters                                 Boolean             @default(false)
+  location_type                                   String              @default("business")
+  logo_url                                        String?
+  phone                                           String?
+  email                                           String?
+  website                                         String?
+  primary_contact_id                              String?
+  transaction_prefix                              String?
+  price_list_id                                   String?
+  created_at                                      DateTime            @default(now())
+  updated_at                                      DateTime
+  deleted_at                                      DateTime?
+  parent_id                                       String?
+  count_sessions                                  count_sessions[]
+  delivery_notes                                  delivery_notes[]
+  goods_receipts                                  goods_receipts[]
+  item_locations                                  item_locations[]
+  location_members                                location_members[]
+  organisations                                   organisations       @relation(fields: [org_id], references: [id])
+  parent_location                                 Location?           @relation("LocationHierarchy", fields: [parent_id], references: [id])
+  child_locations                                 Location[]          @relation("LocationHierarchy")
+  price_lists                                     price_lists?        @relation(fields: [price_list_id], references: [id])
+  users                                           User?               @relation(fields: [primary_contact_id], references: [id])
+  stock_adjustments                               stock_adjustments[]
+  stock_ledger                                    stock_ledger[]
+  transfers_transfers_from_location_idTolocations transfers[]         @relation("transfers_from_location_idTolocations")
+  transfers_transfers_to_location_idTolocations   transfers[]         @relation("transfers_to_location_idTolocations")
+
+  @@unique([org_id, name])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+  @@map("locations")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model accounts {
+  id                                         String          @id
+  org_id                                     String
+  name                                       String
+  code                                       String?
+  type                                       AccountType
+  description                                String?
+  is_system                                  Boolean         @default(false)
+  is_active                                  Boolean         @default(true)
+  created_at                                 DateTime        @default(now())
+  updated_at                                 DateTime
+  deleted_at                                 DateTime?
+  organisations                              organisations   @relation(fields: [org_id], references: [id])
+  items_items_inventory_account_idToaccounts Item[]          @relation("items_inventory_account_idToaccounts")
+  items_items_purchase_account_idToaccounts  Item[]          @relation("items_purchase_account_idToaccounts")
+  items_items_sales_account_idToaccounts     Item[]          @relation("items_sales_account_idToaccounts")
+  journal_lines                              journal_lines[]
+
+  @@unique([org_id, name])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model activities {
+  id            String        @id
+  org_id        String
+  lead_id       String?
+  contact_id    String?
+  type          ActivityType
+  subject       String
+  notes         String?
+  due_at        DateTime?
+  completed_at  DateTime?
+  assigned_to   String?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  contacts      contacts?     @relation(fields: [contact_id], references: [id])
+  leads         leads?        @relation(fields: [lead_id], references: [id])
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model bank_accounts {
+  id                String              @id
+  org_id            String
+  name              String
+  account_number    String?
+  currency          String              @default("USD")
+  current_balance   Float               @default(0)
+  is_default        Boolean             @default(false)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  deleted_at        DateTime?
+  organisations     organisations       @relation(fields: [org_id], references: [id])
+  bank_transactions bank_transactions[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model bank_transactions {
+  id              String            @id
+  bank_account_id String
+  type            TransactionType
+  amount          Float
+  reference_type  String?
+  reference_id    String?
+  description     String?
+  created_at      DateTime          @default(now())
+  bank_accounts   bank_accounts     @relation(fields: [bank_account_id], references: [id])
+  vendor_payments vendor_payments[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model contact_preferences {
+  id                                   String        @id
+  org_id                               String        @unique
+  allow_duplicate_contact_display_name Boolean       @default(false)
+  enable_customer_numbers              Boolean       @default(false)
+  enable_vendor_numbers                Boolean       @default(false)
+  default_customer_type                String        @default("Business")
+  enable_customer_credit_limit         Boolean       @default(false)
+  created_at                           DateTime      @default(now())
+  updated_at                           DateTime
+  organisations                        organisations @relation(fields: [org_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model contacts {
+  id            String        @id
+  org_id        String
+  type          ContactType
+  name          String
+  email         String?
+  phone         String?
+  company       String?
+  address       String?
+  source        String?
+  tags          Json?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  activities    activities[]
+  organisations organisations @relation(fields: [org_id], references: [id])
+  leads         leads[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model count_session_lines {
+  id             String         @id
+  session_id     String
+  item_id        String
+  variant_id     String?
+  expected_qty   Int            @default(0)
+  counted_qty    Int?
+  variance       Int?
+  status         String         @default("pending")
+  items          Item           @relation(fields: [item_id], references: [id])
+  count_sessions count_sessions @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  item_variants  item_variants? @relation(fields: [variant_id], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model count_sessions {
+  id                  String                @id
+  org_id              String
+  location_id         String
+  status              String                @default("draft")
+  scheduled_at        DateTime?
+  completed_at        DateTime?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime
+  count_session_lines count_session_lines[]
+  locations           Location              @relation(fields: [location_id], references: [id])
+  organisations       organisations         @relation(fields: [org_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model credit_notes {
+  id            String        @id
+  org_id        String
+  invoice_id    String
+  reason        String?
+  total_amount  Float         @default(0)
+  status        String        @default("draft")
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  invoices      invoices      @relation(fields: [invoice_id], references: [id])
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model crm_notes {
+  id            String        @id
+  org_id        String
+  lead_id       String
+  body          String
+  created_by    String
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  leads         leads         @relation(fields: [lead_id], references: [id])
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model currencies {
+  id               String        @id
+  org_id           String
+  code             String
+  symbol           String
+  exchange_rate    Float         @default(1.0)
+  is_base_currency Boolean       @default(false)
+  created_at       DateTime      @default(now())
+  updated_at       DateTime
+  deleted_at       DateTime?
+  as_of_date       DateTime      @default(now())
+  name             String        @default("")
+  organisations    organisations @relation(fields: [org_id], references: [id])
+
+  @@unique([org_id, code])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model customer_payments {
+  id                  String                @id
+  org_id              String
+  customer_id         String
+  amount              Float
+  currency            String                @default("NGN")
+  exchange_rate       Float                 @default(1.0)
+  payment_date        DateTime              @default(now())
+  reference           String?
+  payment_method      String?
+  status              String                @default("posted")
+  unallocated_amount  Float                 @default(0)
+  created_at          DateTime              @default(now())
+  updated_at          DateTime
+  customers           customers             @relation(fields: [customer_id], references: [id])
+  organisations       organisations         @relation(fields: [org_id], references: [id])
+  payment_allocations payment_allocations[]
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model customers {
+  id                 String              @id
+  org_id             String
+  name               String
+  email              String?
+  phone              String?
+  billing_address    String?
+  shipping_address   String?
+  payment_terms_days Int                 @default(30)
+  credit_limit       Float?
+  currency           String              @default("NGN")
+  tax_id             String?
+  created_at         DateTime            @default(now())
+  updated_at         DateTime
+  deleted_at         DateTime?
+  customer_payments  customer_payments[]
+  organisations      organisations       @relation(fields: [org_id], references: [id])
+  invoices           invoices[]
+  quotations         quotations[]
+  sales_orders       sales_orders[]
+  sales_returns      sales_returns[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model dashboard_widgets {
+  id            String        @id
+  org_id        String
+  dashboard_id  String
+  type          String
+  title         String
+  config        Json
+  position      Json
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  dashboards    dashboards    @relation(fields: [dashboard_id], references: [id])
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model dashboards {
+  id                String              @id
+  org_id            String
+  name              String
+  is_default        Boolean             @default(false)
+  created_by        String
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  deleted_at        DateTime?
+  dashboard_widgets dashboard_widgets[]
+  organisations     organisations       @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model delivery_notes {
+  id            String          @id
+  org_id        String
+  so_id         String
+  shipped_at    DateTime?
+  carrier       String?
+  tracking_no   String?
+  created_at    DateTime        @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  location_id   String
+  locations     Location        @relation(fields: [location_id], references: [id])
+  organisations organisations   @relation(fields: [org_id], references: [id])
+  sales_orders  sales_orders    @relation(fields: [so_id], references: [id])
+  invoices      invoices[]
+  sales_returns sales_returns[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model domains {
+  id            String        @id
+  org_id        String
+  domain        String        @unique
+  verified      Boolean       @default(false)
+  primary       Boolean       @default(false)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model general_preferences {
+  id                              String        @id
+  org_id                          String        @unique
+  enabled_modules                 Json          @default("[]")
+  attach_invoice_pdf_to_email     Boolean       @default(false)
+  encrypt_pdf_files               Boolean       @default(false)
+  discount_type                   String        @default("none")
+  additional_charges              Json          @default("[]")
+  tax_inclusive_sales             String        @default("exclusive")
+  sales_rounding                  String        @default("none")
+  enable_salesperson_field        Boolean       @default(false)
+  enable_profit_margin_estimation Boolean       @default(false)
+  default_markup_percentage       Float         @default(0)
+  stock_tracking_mode             String        @default("physical")
+  document_copy_label             String        @default("Original")
+  payment_retention               Boolean       @default(false)
+  organization_address_format     String?
+  created_at                      DateTime      @default(now())
+  updated_at                      DateTime
+  organisations                   organisations @relation(fields: [org_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model goods_receipts {
+  id              String          @id
+  org_id          String
+  po_id           String
+  received_by     String
+  received_at     DateTime        @default(now())
+  notes           String?
+  created_at      DateTime        @default(now())
+  updated_at      DateTime
+  deleted_at      DateTime?
+  location_id     String
+  locations       Location        @relation(fields: [location_id], references: [id])
+  organisations   organisations   @relation(fields: [org_id], references: [id])
+  purchase_orders purchase_orders @relation(fields: [po_id], references: [id])
+  gr_lines        gr_lines[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model gr_lines {
+  id             String         @id
+  org_id         String
+  gr_id          String
+  po_line_id     String
+  qty_received   Int
+  batch_no       String?
+  expiry_date    DateTime?
+  created_at     DateTime       @default(now())
+  updated_at     DateTime
+  deleted_at     DateTime?
+  goods_receipts goods_receipts @relation(fields: [gr_id], references: [id])
+  organisations  organisations  @relation(fields: [org_id], references: [id])
+  po_lines       po_lines       @relation(fields: [po_line_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model invoices {
+  id                  String                @id
+  org_id              String
+  customer_id         String
+  so_id               String?
+  invoice_no          String?
+  invoice_date        DateTime?
+  due_date            DateTime?
+  status              InvoiceStatus         @default(draft)
+  total_amount        Float                 @default(0)
+  created_at          DateTime              @default(now())
+  updated_at          DateTime
+  deleted_at          DateTime?
+  delivery_note_id    String?
+  credit_notes        credit_notes[]
+  customers           customers             @relation(fields: [customer_id], references: [id])
+  delivery_notes      delivery_notes?       @relation(fields: [delivery_note_id], references: [id])
+  organisations       organisations         @relation(fields: [org_id], references: [id])
+  sales_orders        sales_orders?         @relation(fields: [so_id], references: [id])
+  payment_allocations payment_allocations[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model item_categories {
+  id                    String            @id
+  org_id                String
+  name                  String
+  parent_id             String?
+  created_at            DateTime          @default(now())
+  updated_at            DateTime
+  deleted_at            DateTime?
+  organisations         organisations     @relation(fields: [org_id], references: [id])
+  item_categories       item_categories?  @relation("item_categoriesToitem_categories", fields: [parent_id], references: [id])
+  other_item_categories item_categories[] @relation("item_categoriesToitem_categories")
+  items                 Item[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model item_groups {
+  id             String        @id
+  org_id         String
+  name           String
+  description    String?
+  unit_id        String?
+  manufacturer   String?
+  brand          String?
+  tax_preference String?
+  hsn_sac_code   String?
+  created_at     DateTime      @default(now())
+  updated_at     DateTime
+  organisations  organisations @relation(fields: [org_id], references: [id])
+  items          Item[]
+
+  @@unique([org_id, name])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model item_locations {
+  id            String   @id
+  item_id       String
+  location_id   String
+  reorder_point Int      @default(0)
+  reorder_qty   Int      @default(0)
+  items         Item     @relation(fields: [item_id], references: [id])
+  locations     Location @relation(fields: [location_id], references: [id])
+
+  @@unique([item_id, location_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model item_preferences {
+  id                             String        @id
+  org_id                         String        @unique
+  item_quantity_decimal_rate     Float         @default(0)
+  measurement_dimensions         String        @default("cm")
+  measurement_weights            String        @default("kg")
+  barcode_scanning_field         String        @default("sku")
+  default_inventory_valuation    String        @default("Weighted Average")
+  allow_duplicate_item_names     Boolean       @default(false)
+  enable_enhanced_item_search    Boolean       @default(false)
+  enable_price_lists             Boolean       @default(false)
+  apply_price_list_at_line_item  Boolean       @default(false)
+  enable_composite_items         Boolean       @default(false)
+  inventory_start_date           DateTime?
+  enable_serial_number_tracking  Boolean       @default(false)
+  enable_batch_tracking          Boolean       @default(false)
+  prevent_stock_below_zero_level String        @default("None")
+  show_out_of_stock_warning      Boolean       @default(true)
+  notify_reorder_point           Boolean       @default(true)
+  notify_reorder_point_users     Json          @default("[]")
+  track_landed_cost_on_items     Boolean       @default(false)
+  created_at                     DateTime      @default(now())
+  updated_at                     DateTime
+  organisations                  organisations @relation(fields: [org_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model item_variants {
+  id                  String                @id
+  org_id              String
+  item_id             String
+  attributes          Json
+  sku                 String
+  barcode             String?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime
+  deleted_at          DateTime?
+  count_session_lines count_session_lines[]
+  items               Item                  @relation(fields: [item_id], references: [id])
+  organisations       organisations         @relation(fields: [org_id], references: [id])
+  po_lines            po_lines[]
+  sales_return_lines  sales_return_lines[]
+  so_lines            so_lines[]
+  stock_adjustments   stock_adjustments[]
+  stock_ledger        stock_ledger[]
+
+  @@unique([org_id, sku])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model journal_entries {
+  id            String          @id
+  org_id        String
+  date          DateTime        @default(now())
+  reference     String?
+  description   String?
+  status        String          @default("posted")
+  created_at    DateTime        @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  organisations organisations   @relation(fields: [org_id], references: [id])
+  journal_lines journal_lines[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model journal_lines {
+  id              String          @id
+  entry_id        String
+  account_id      String
+  debit           Float           @default(0)
+  credit          Float           @default(0)
+  deleted_at      DateTime?
+  accounts        accounts        @relation(fields: [account_id], references: [id])
+  journal_entries journal_entries @relation(fields: [entry_id], references: [id], onDelete: Cascade)
+
+  @@index([deleted_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model leads {
+  id              String          @id
+  org_id          String
+  contact_id      String?
+  title           String
+  pipeline_id     String
+  stage_id        String
+  assigned_to     String?
+  expected_close  DateTime?
+  probability     Float           @default(0)
+  value           Float           @default(0)
+  currency        String          @default("USD")
+  status          LeadStatus      @default(open)
+  lost_reason     String?
+  created_at      DateTime        @default(now())
+  updated_at      DateTime
+  deleted_at      DateTime?
+  activities      activities[]
+  crm_notes       crm_notes[]
+  contacts        contacts?       @relation(fields: [contact_id], references: [id])
+  organisations   organisations   @relation(fields: [org_id], references: [id])
+  pipelines       pipelines       @relation(fields: [pipeline_id], references: [id])
+  pipeline_stages pipeline_stages @relation(fields: [stage_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model location_members {
+  id          String   @id
+  location_id String
+  user_id     String
+  role        String   @default("member")
+  created_at  DateTime @default(now())
+  updated_at  DateTime
+  locations   Location @relation(fields: [location_id], references: [id])
+  users       User     @relation(fields: [user_id], references: [id])
+
+  @@unique([location_id, user_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model notifications {
+  id            String        @id
+  org_id        String
+  user_id       String
+  type          String
+  title         String
+  body          String
+  read_at       DateTime?
+  entity_type   String?
+  entity_id     String?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  organisations organisations @relation(fields: [org_id], references: [id])
+  users         User          @relation(fields: [user_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model org_invitations {
+  id            String        @id
+  org_id        String
+  email         String
+  role          String
+  token         String        @unique
+  expires_at    DateTime
+  status        String        @default("pending")
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model org_members {
+  id            String        @id
+  org_id        String
+  user_id       String
+  role          String
+  permissions   Json
+  invited_at    DateTime?
+  joined_at     DateTime?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  organisations organisations @relation(fields: [org_id], references: [id])
+  users         User          @relation(fields: [user_id], references: [id])
+
+  @@unique([org_id, user_id])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model org_modules {
+  id            String        @id
+  org_id        String
+  module_name   String
+  enabled       Boolean       @default(false)
+  installed_at  DateTime?
+  settings      Json?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@unique([org_id, module_name])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model org_subscriptions {
+  id                         String             @id
+  org_id                     String             @unique
+  plan_id                    String
+  paystack_customer_id       String?
+  paystack_subscription_code String?
+  stripe_customer_id         String?
+  status                     String
+  current_period_end         DateTime?
+  created_at                 DateTime           @default(now())
+  updated_at                 DateTime
+  organisations              organisations      @relation(fields: [org_id], references: [id])
+  subscription_plans         subscription_plans @relation(fields: [plan_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model organisations {
+  id                        String                      @id
+  name                      String
+  slug                      String                      @unique
+  plan                      String
+  status                    String
+  payment_mode              String                      @default("accounts_payable")
+  created_at                DateTime                    @default(now())
+  updated_at                DateTime
+  deleted_at                DateTime?
+  allow_impersonation       Boolean                     @default(false)
+  additional_fields         Json?                       @default("[]")
+  base_currency             String?
+  company_id_type           String?
+  company_id_value          String?
+  date_format               String                      @default("DD/MM/YYYY")
+  fiscal_year               String                      @default("Jan-Dec")
+  industry                  String?
+  company_size              String?
+  location                  String?
+  logo_url                  String?
+  primary_contact           String?
+  time_zone                 String                      @default("UTC+1")
+  address                   String?
+  communication_language    String                      @default("English")
+  language                  String                      @default("English")
+  payment_stub_address      String?
+  org_code                  String?                     @unique
+  accent_color              String                      @default("#4f46e5")
+  keep_branding             Boolean                     @default(true)
+  recommend_platform        Boolean                     @default(true)
+  theme_mode                String                      @default("Light")
+  enable_processing_loader  Boolean                     @default(true)
+  accounting_periods        AccountingPeriod[]
+  accounts                  accounts[]
+  activities                activities[]
+  audit_logs                AuditLog[]
+  bank_accounts             bank_accounts[]
+  contact_preferences       contact_preferences?
+  contacts                  contacts[]
+  count_sessions            count_sessions[]
+  credit_notes              credit_notes[]
+  crm_notes                 crm_notes[]
+  currencies                currencies[]
+  customer_payments         customer_payments[]
+  customers                 customers[]
+  dashboard_widgets         dashboard_widgets[]
+  dashboards                dashboards[]
+  delivery_notes            delivery_notes[]
+  domains                   domains[]
+  general_preferences       general_preferences?
+  goods_receipts            goods_receipts[]
+  gr_lines                  gr_lines[]
+  invoices                  invoices[]
+  item_categories           item_categories[]
+  item_groups               item_groups[]
+  item_preferences          item_preferences?
+  item_variants             item_variants[]
+  items                     Item[]
+  journal_entries           journal_entries[]
+  leads                     leads[]
+  locations                 Location[]
+  notifications             notifications[]
+  org_invitations           org_invitations[]
+  org_members               org_members[]
+  org_modules               org_modules[]
+  org_subscriptions         org_subscriptions?
+  payment_terms             payment_terms[]
+  pipeline_stages           pipeline_stages[]
+  pipelines                 pipelines[]
+  po_lines                  po_lines[]
+  price_lists               price_lists[]
+  purchase_orders           purchase_orders[]
+  quotations                quotations[]
+  report_definitions        report_definitions[]
+  report_exports            report_exports[]
+  retentions                retentions[]
+  roles                     Role[]
+  sales_orders              sales_orders[]
+  sales_returns             sales_returns[]
+  so_lines                  so_lines[]
+  stock_adjustments         stock_adjustments[]
+  stock_ledger              stock_ledger[]
+  tax_preferences           tax_preferences?
+  tax_rates                 tax_rates[]
+  transaction_series_groups transaction_series_groups[]
+  transfers                 transfers[]
+  units                     units[]
+  vendor_bills              vendor_bills[]
+  vendor_payments           vendor_payments[]
+  vendors                   vendors[]
+  approval_workflows        approval_workflows[]
+  approval_requests         approval_requests[]
+
+  @@index([deleted_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_allocations {
+  id                String            @id
+  payment_id        String
+  invoice_id        String
+  amount            Float
+  created_at        DateTime          @default(now())
+  invoices          invoices          @relation(fields: [invoice_id], references: [id])
+  customer_payments customer_payments @relation(fields: [payment_id], references: [id], onDelete: Cascade)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_terms {
+  id            String        @id
+  org_id        String
+  name          String
+  days_to_due   Int
+  is_default    Boolean       @default(false)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  status        String        @default("Active")
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@unique([org_id, name])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model pipeline_stages {
+  id                  String        @id
+  org_id              String
+  pipeline_id         String
+  name                String
+  position            Int
+  probability_default Float         @default(0)
+  created_at          DateTime      @default(now())
+  updated_at          DateTime
+  deleted_at          DateTime?
+  leads               leads[]
+  organisations       organisations @relation(fields: [org_id], references: [id])
+  pipelines           pipelines     @relation(fields: [pipeline_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model pipelines {
+  id              String            @id
+  org_id          String
+  name            String
+  is_default      Boolean           @default(false)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime
+  deleted_at      DateTime?
+  leads           leads[]
+  pipeline_stages pipeline_stages[]
+  organisations   organisations     @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model po_lines {
+  id              String          @id
+  org_id          String
+  po_id           String
+  item_id         String
+  variant_id      String?
+  qty_ordered     Int
+  qty_received    Int             @default(0)
+  unit_price      Float
+  tax_rate        Float           @default(0)
+  line_total      Float
+  created_at      DateTime        @default(now())
+  updated_at      DateTime
+  deleted_at      DateTime?
+  gr_lines        gr_lines[]
+  items           Item            @relation(fields: [item_id], references: [id])
+  organisations   organisations   @relation(fields: [org_id], references: [id])
+  purchase_orders purchase_orders @relation(fields: [po_id], references: [id])
+  item_variants   item_variants?  @relation(fields: [variant_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model price_lists {
+  id            String        @id
+  org_id        String
+  name          String
+  currency      String        @default("USD")
+  type          String        @default("sales")
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  locations     Location[]
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model purchase_orders {
+  id             String           @id
+  org_id         String
+  vendor_id      String
+  status         POStatus         @default(draft)
+  expected_date  DateTime?
+  currency       String           @default("NGN")
+  exchange_rate  Float            @default(1.0)
+  notes          String?
+  total_amount   Float            @default(0)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime
+  deleted_at     DateTime?
+  goods_receipts goods_receipts[]
+  po_lines       po_lines[]
+  organisations  organisations    @relation(fields: [org_id], references: [id])
+  vendors        vendors          @relation(fields: [vendor_id], references: [id])
+  vendor_bills   vendor_bills[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model quotations {
+  id            String          @id
+  org_id        String
+  customer_id   String
+  status        QuotationStatus @default(draft)
+  valid_until   DateTime?
+  currency      String          @default("NGN")
+  exchange_rate Float           @default(1.0)
+  notes         String?
+  total_amount  Float           @default(0)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  customers     customers       @relation(fields: [customer_id], references: [id])
+  organisations organisations   @relation(fields: [org_id], references: [id])
+  sales_orders  sales_orders[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model report_definitions {
+  id             String           @id
+  org_id         String
+  name           String
+  module         String
+  entity         String
+  columns        Json
+  filters        Json?
+  sort           Json?
+  created_by     String
+  is_shared      Boolean          @default(false)
+  schedule       Json?
+  created_at     DateTime         @default(now())
+  updated_at     DateTime
+  deleted_at     DateTime?
+  organisations  organisations    @relation(fields: [org_id], references: [id])
+  report_exports report_exports[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model report_exports {
+  id                 String             @id
+  org_id             String
+  report_id          String
+  format             ExportFormat
+  status             String
+  file_url           String?
+  generated_at       DateTime?
+  expires_at         DateTime?
+  created_at         DateTime           @default(now())
+  updated_at         DateTime
+  deleted_at         DateTime?
+  organisations      organisations      @relation(fields: [org_id], references: [id])
+  report_definitions report_definitions @relation(fields: [report_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model retentions {
+  id            String        @id
+  org_id        String
+  name          String
+  rate          Float
+  is_default    Boolean       @default(false)
+  status        String        @default("Active")
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@unique([org_id, name])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sales_orders {
+  id             String           @id
+  org_id         String
+  customer_id    String
+  quotation_id   String?
+  status         SOStatus         @default(draft)
+  delivery_date  DateTime?
+  notes          String?
+  total_amount   Float            @default(0)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime
+  deleted_at     DateTime?
+  delivery_notes delivery_notes[]
+  invoices       invoices[]
+  customers      customers        @relation(fields: [customer_id], references: [id])
+  organisations  organisations    @relation(fields: [org_id], references: [id])
+  quotations     quotations?      @relation(fields: [quotation_id], references: [id])
+  sales_returns  sales_returns[]
+  so_lines       so_lines[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sales_return_lines {
+  id            String         @id
+  return_id     String
+  item_id       String
+  variant_id    String?
+  qty_returned  Int            @default(0)
+  unit_price    Float          @default(0)
+  line_total    Float          @default(0)
+  items         Item           @relation(fields: [item_id], references: [id])
+  sales_returns sales_returns  @relation(fields: [return_id], references: [id], onDelete: Cascade)
+  item_variants item_variants? @relation(fields: [variant_id], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sales_returns {
+  id                 String               @id
+  org_id             String
+  customer_id        String
+  so_id              String?
+  delivery_id        String?
+  status             String               @default("draft")
+  total_amount       Float                @default(0)
+  created_at         DateTime             @default(now())
+  updated_at         DateTime
+  sales_return_lines sales_return_lines[]
+  customers          customers            @relation(fields: [customer_id], references: [id])
+  delivery_notes     delivery_notes?      @relation(fields: [delivery_id], references: [id])
+  organisations      organisations        @relation(fields: [org_id], references: [id])
+  sales_orders       sales_orders?        @relation(fields: [so_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model so_lines {
+  id            String         @id
+  org_id        String
+  so_id         String
+  item_id       String
+  variant_id    String?
+  qty_ordered   Int
+  qty_delivered Int            @default(0)
+  unit_price    Float
+  tax_rate      Float          @default(0)
+  discount_pct  Float          @default(0)
+  line_total    Float
+  created_at    DateTime       @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  items         Item           @relation(fields: [item_id], references: [id])
+  organisations organisations  @relation(fields: [org_id], references: [id])
+  sales_orders  sales_orders   @relation(fields: [so_id], references: [id])
+  item_variants item_variants? @relation(fields: [variant_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model stock_adjustments {
+  id            String         @id
+  org_id        String
+  item_id       String
+  variant_id    String?
+  qty_delta     Int
+  reason_code   String
+  notes         String?
+  approved_by   String?
+  created_by    String
+  created_at    DateTime       @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  location_id   String
+  items         Item           @relation(fields: [item_id], references: [id])
+  locations     Location       @relation(fields: [location_id], references: [id])
+  organisations organisations  @relation(fields: [org_id], references: [id])
+  item_variants item_variants? @relation(fields: [variant_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model stock_ledger {
+  id             String         @id
+  org_id         String
+  item_id        String
+  variant_id     String?
+  qty_delta      Int
+  movement_type  MovementType
+  reference_id   String?
+  reference_type String?
+  batch_no       String?
+  serial_no      String?
+  expiry_date    DateTime?
+  cost_price     Float          @default(0)
+  created_at     DateTime       @default(now())
+  location_id    String
+  items          Item           @relation(fields: [item_id], references: [id])
+  locations      Location       @relation(fields: [location_id], references: [id])
+  organisations  organisations  @relation(fields: [org_id], references: [id])
+  item_variants  item_variants? @relation(fields: [variant_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model subscription_plans {
+  id                 String              @id
+  name               String
+  price              Float
+  currency           String              @default("USD")
+  interval           String
+  paystack_plan_code String?
+  stripe_price_id    String?
+  features           Json?
+  created_at         DateTime            @default(now())
+  updated_at         DateTime
+  org_subscriptions  org_subscriptions[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model tax_preferences {
+  id                             String        @id
+  org_id                         String        @unique
+  tax_reg_number                 String?
+  enable_tds                     Boolean       @default(false)
+  enable_sales_reverse_charge    Boolean       @default(false)
+  enable_purchase_reverse_charge Boolean       @default(false)
+  enable_sales_tax_override      Boolean       @default(false)
+  enable_purchase_tax_override   Boolean       @default(false)
+  created_at                     DateTime      @default(now())
+  updated_at                     DateTime
+  organisations                  organisations @relation(fields: [org_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model tax_rates {
+  id            String        @id
+  org_id        String
+  name          String
+  rate          Float
+  is_compound   Boolean       @default(false)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@unique([org_id, name])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model transaction_series_groups {
+  id                       String                     @id
+  org_id                   String
+  name                     String
+  locations                Json
+  is_default               Boolean                    @default(false)
+  created_at               DateTime                   @default(now())
+  updated_at               DateTime
+  deleted_at               DateTime?
+  organisations            organisations              @relation(fields: [org_id], references: [id])
+  transaction_series_items transaction_series_items[]
+
+  @@unique([org_id, name])
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model transaction_series_items {
+  id                        String                    @id
+  group_id                  String
+  document_module           String
+  prefix                    String
+  starting_number           Int                       @default(1)
+  restart_numbering         String                    @default("Never")
+  suffix                    String?
+  transaction_series_groups transaction_series_groups @relation(fields: [group_id], references: [id], onDelete: Cascade)
+
+  @@unique([group_id, document_module])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model transfers {
+  id                                              String        @id
+  org_id                                          String
+  status                                          String
+  lines                                           Json
+  created_at                                      DateTime      @default(now())
+  updated_at                                      DateTime
+  deleted_at                                      DateTime?
+  from_location_id                                String
+  to_location_id                                  String
+  locations_transfers_from_location_idTolocations Location      @relation("transfers_from_location_idTolocations", fields: [from_location_id], references: [id])
+  organisations                                   organisations @relation(fields: [org_id], references: [id])
+  locations_transfers_to_location_idTolocations   Location      @relation("transfers_to_location_idTolocations", fields: [to_location_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model units {
+  id            String        @id
+  org_id        String
+  name          String
+  symbol        String
+  conversions   Json?
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  deleted_at    DateTime?
+  items         Item[]
+  organisations organisations @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model vendor_bills {
+  id              String            @id
+  org_id          String
+  vendor_id       String
+  po_id           String?
+  invoice_no      String?
+  invoice_date    DateTime?
+  due_date        DateTime?
+  status          BillStatus        @default(draft)
+  total_amount    Float             @default(0)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime
+  deleted_at      DateTime?
+  organisations   organisations     @relation(fields: [org_id], references: [id])
+  purchase_orders purchase_orders?  @relation(fields: [po_id], references: [id])
+  vendors         vendors           @relation(fields: [vendor_id], references: [id])
+  vendor_payments vendor_payments[]
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model vendor_payments {
+  id                  String            @id
+  org_id              String
+  vendor_bill_id      String
+  bank_transaction_id String
+  amount              Float
+  payment_date        DateTime          @default(now())
+  created_at          DateTime          @default(now())
+  updated_at          DateTime
+  bank_transactions   bank_transactions @relation(fields: [bank_transaction_id], references: [id])
+  organisations       organisations     @relation(fields: [org_id], references: [id])
+  vendor_bills        vendor_bills      @relation(fields: [vendor_bill_id], references: [id])
+
+  @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model vendors {
+  id                 String            @id
+  org_id             String
+  name               String
+  email              String?
+  phone              String?
+  address            String?
+  payment_terms_days Int               @default(30)
+  tax_id             String?
+  currency           String            @default("NGN")
+  notes              String?
+  created_at         DateTime          @default(now())
+  updated_at         DateTime
+  deleted_at         DateTime?
+  items              Item[]
+  purchase_orders    purchase_orders[]
+  vendor_bills       vendor_bills[]
+  organisations      organisations     @relation(fields: [org_id], references: [id])
+
+  @@index([deleted_at])
+  @@index([org_id, created_at])
+}
+
+enum AccountType {
+  asset
+  liability
+  equity
+  revenue
+  expense
+}
+
+enum ActivityType {
+  call
+  email
+  meeting
+  task
+}
+
+enum BillStatus {
+  draft
+  posted
+  paid
+  overdue
+}
+
+enum ContactType {
+  lead
+  customer
+  vendor
+  partner
+}
+
+enum CostMethod {
+  fifo
+  fefo
+  lifo
+  average
+}
+
+enum ExportFormat {
+  csv
+  pdf
+  xlsx
+}
+
+enum InvoiceStatus {
+  draft
+  sent
+  paid
+  overdue
+  void
+}
+
+enum LeadStatus {
+  open
+  won
+  lost
+  archived
+}
+
+enum MovementType {
+  receipt
+  sale
+  adjustment
+  transfer
+  return
+}
+
+enum POStatus {
+  draft
+  sent
+  confirmed
+  received
+  billed
+  cancelled
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model approval_workflows {
+  id              String                    @id @default(uuid())
+  org_id          String
+  document_module String
+  name            String
+  is_active       Boolean                   @default(true)
+  created_at      DateTime                  @default(now())
+  updated_at      DateTime                  @updatedAt
+  deleted_at      DateTime?
+  organisations   organisations             @relation(fields: [org_id], references: [id])
+  steps           approval_workflow_steps[]
+  requests        approval_requests[]
+
+  @@index([org_id, deleted_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model approval_workflow_steps {
+  id            String                   @id @default(uuid())
+  workflow_id   String
+  tier_order    Int
+  role_id       String?
+  condition     Json?
+  workflows     approval_workflows       @relation(fields: [workflow_id], references: [id], onDelete: Cascade)
+  roles         Role?                    @relation(fields: [role_id], references: [id])
+  request_steps approval_request_steps[]
+
+  @@unique([workflow_id, tier_order])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model approval_requests {
+  id              String                   @id @default(uuid())
+  org_id          String
+  workflow_id     String
+  document_module String
+  document_id     String
+  status          String                   @default("PENDING")
+  requested_by    String
+  created_at      DateTime                 @default(now())
+  updated_at      DateTime                 @updatedAt
+  organisations   organisations            @relation(fields: [org_id], references: [id])
+  workflows       approval_workflows       @relation(fields: [workflow_id], references: [id])
+  users           User                     @relation(fields: [requested_by], references: [id])
+  steps           approval_request_steps[]
+
+  @@unique([document_module, document_id])
+  @@index([org_id, status])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model approval_request_steps {
+  id             String                  @id @default(uuid())
+  request_id     String
+  step_id        String
+  status         String                  @default("PENDING")
+  actioned_by    String?
+  actioned_at    DateTime?
+  comments       String?
+  requests       approval_requests       @relation(fields: [request_id], references: [id], onDelete: Cascade)
+  workflow_steps approval_workflow_steps @relation(fields: [step_id], references: [id])
+  users          User?                   @relation(fields: [actioned_by], references: [id])
+}
+
+enum QuotationStatus {
+  draft
+  sent
+  accepted
+  expired
+  cancelled
+}
+
+enum SOStatus {
+  draft
+  confirmed
+  picking
+  shipped
+  delivered
+  cancelled
+}
+
+enum TransactionType {
+  credit
+  debit
+}

@@ -1,0 +1,217 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------------------------------------
+// Base & IAM Models
+// ------------------------------------------------------
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  domain    String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users             User[]
+  roles             Role[]
+  items             Item[]
+  warehouses        Warehouse[]
+  auditLogs         AuditLog[]
+  accountingPeriods AccountingPeriod[]
+  uoms              UnitOfMeasure[]
+
+  @@map("tenants")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  tenantId       String
+  supabaseAuthId String   @unique // Link to Supabase Auth UUID
+  email          String
+  firstName      String?
+  lastName       String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userRoles UserRole[]
+  auditLogs AuditLog[]
+
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  description String?
+  permissions Json     @default("{}") // RBAC policies stored as JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userRoles UserRole[]
+
+  @@unique([tenantId, name])
+  @@map("roles")
+}
+
+model UserRole {
+  id       String @id @default(uuid())
+  userId   String
+  roleId   String
+  tenantId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  tenantId   String
+  userId     String?
+  action     String // e.g., "CREATE_ITEM", "APPROVE_PO"
+  entityType String // e.g., "Item", "PurchaseOrder"
+  entityId   String
+  beforeData Json?
+  afterData  Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, entityType, entityId])
+  @@map("audit_logs")
+}
+
+// ------------------------------------------------------
+// Financial Foundation
+// ------------------------------------------------------
+
+model AccountingPeriod {
+  id        String    @id @default(uuid())
+  tenantId  String
+  name      String // e.g., "FY2026-Q1", "2026-06"
+  startDate DateTime
+  endDate   DateTime
+  isClosed  Boolean   @default(false)
+  closedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@map("accounting_periods")
+}
+
+// ------------------------------------------------------
+// Inventory Core
+// ------------------------------------------------------
+
+model UnitOfMeasure {
+  id          String   @id @default(uuid())
+  tenantId    String
+  code        String // e.g., "PCS", "KG", "BOX"
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items          Item[]              @relation("BaseUom")
+  uomConversions ItemUomConversion[] @relation("ToUom")
+
+  @@unique([tenantId, code])
+  @@map("units_of_measure")
+}
+
+model Item {
+  id              String   @id @default(uuid())
+  tenantId        String
+  code            String // Immutable item code
+  name            String
+  description     String?
+  type            String // e.g., "STOCK", "NON_STOCK", "SERVICE"
+  baseUomId       String
+  isLotTracked    Boolean  @default(false)
+  isSerialTracked Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  standardCost    Decimal  @default(0) @db.Decimal(19, 4)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  baseUom        UnitOfMeasure       @relation("BaseUom", fields: [baseUomId], references: [id], onDelete: Restrict)
+  uomConversions ItemUomConversion[]
+
+  @@unique([tenantId, code])
+  @@map("items")
+}
+
+model ItemUomConversion {
+  id               String   @id @default(uuid())
+  tenantId         String
+  itemId           String
+  toUomId          String
+  conversionFactor Decimal  @db.Decimal(19, 6) // Multiplier from base UOM
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  item  Item          @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  toUom UnitOfMeasure @relation("ToUom", fields: [toUomId], references: [id], onDelete: Restrict)
+
+  @@unique([itemId, toUomId])
+  @@map("item_uom_conversions")
+}
+
+model Warehouse {
+  id        String   @id @default(uuid())
+  tenantId  String
+  code      String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  locations Location[]
+
+  @@unique([tenantId, code])
+  @@map("warehouses")
+}
+
+model Location {
+  id          String   @id @default(uuid())
+  tenantId    String
+  warehouseId String
+  parentId    String?
+  code        String
+  name        String
+  type        String // e.g., "ZONE", "RACK", "BIN", "QC_HOLD"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  warehouse Warehouse  @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  parent    Location?  @relation("LocationHierarchy", fields: [parentId], references: [id])
+  children  Location[] @relation("LocationHierarchy")
+
+  @@unique([warehouseId, code])
+  @@map("locations")
+}
