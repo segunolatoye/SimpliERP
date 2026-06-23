@@ -24,3 +24,13 @@ export async function createPurchaseOrderAction(tenantSlug: string, payload: any
   
   revalidatePath(`/${tenantSlug}/purchases/orders`);
 }
+
+import { GRNService } from '@/modules/purchases/services/grn.service';
+
+export async function receiveGoodsAction(tenantSlug: string, payload: any) {
+  const { user, orgMember } = await requirePermission(tenantSlug, 'purchases.manage');
+  
+  await GRNService.processReceipt(tenantSlug, orgMember.org_id, user.id, payload);
+  
+  revalidatePath(`/${tenantSlug}/purchases/orders`);
+}

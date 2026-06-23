@@ -1,16 +1,20 @@
 "use client";
 
 import { useState } from 'react';
-import { ShoppingCart, Plus } from 'lucide-react';
+import { ShoppingCart, Plus, MoreHorizontal, Box } from 'lucide-react';
 import { Button } from '@/packages/ui-kit/components/ui/button';
 import { DataTable } from '@/packages/ui-kit/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 import { SlideOver } from '@/packages/ui-kit/components/ui/SlideOver';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/packages/ui-kit/components/ui/dropdown-menu';
 import { PurchaseOrderForm } from './PurchaseOrderForm';
+import { GoodsReceiptForm } from './GoodsReceiptForm';
 import { formatMoney } from '@/lib/utils/money';
 
-export function PurchaseOrdersClient({ tenantSlug, orders, vendors, items }: { tenantSlug: string, orders: any[], vendors: any[], items: any[] }) {
+export function PurchaseOrdersClient({ tenantSlug, orders, vendors, items, locations }: { tenantSlug: string, orders: any[], vendors: any[], items: any[], locations: any[] }) {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isReceiptFormOpen, setIsReceiptFormOpen] = useState(false);
+  const [selectedPO, setSelectedPO] = useState<any>(null);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -49,6 +53,37 @@ export function PurchaseOrdersClient({ tenantSlug, orders, vendors, items }: { t
           <span className={`px-2.5 py-1 text-xs rounded-full border font-medium capitalize ${color}`}>
             {row.original.status}
           </span>
+        );
+      }
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const po = row.original;
+        const canReceive = po.status === 'confirmed';
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
+                <MoreHorizontal className="h-4 w-4 text-slate-500" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[160px] rounded-xl">
+              {canReceive && (
+                <DropdownMenuItem 
+                  onClick={() => {
+                    setSelectedPO(po);
+                    setIsReceiptFormOpen(true);
+                  }}
+                  className="cursor-pointer text-emerald-600 focus:text-emerald-700"
+                >
+                  <Box className="w-4 h-4 mr-2" />
+                  Receive Goods
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       }
     }
@@ -92,6 +127,21 @@ export function PurchaseOrdersClient({ tenantSlug, orders, vendors, items }: { t
           items={items}
           onSuccess={() => setIsFormOpen(false)} 
         />
+      </SlideOver>
+
+      <SlideOver 
+        open={isReceiptFormOpen} 
+        onOpenChange={(val: boolean) => setIsReceiptFormOpen(val)} 
+        title={`Receive Goods - ${selectedPO?.id}`}
+      >
+        {selectedPO && (
+          <GoodsReceiptForm 
+            tenantSlug={tenantSlug} 
+            po={selectedPO}
+            locations={locations}
+            onSuccess={() => setIsReceiptFormOpen(false)} 
+          />
+        )}
       </SlideOver>
     </div>
   );

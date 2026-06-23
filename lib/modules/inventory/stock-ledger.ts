@@ -52,6 +52,42 @@ export class StockLedgerEngine {
   }
 
   /**
+   * Post a goods receipt to the ledger.
+   * Typically called within a transaction when a GRN is created.
+   */
+  static async receiveGoods(
+    params: {
+      orgId: string;
+      grnId: string;
+      locationId: string;
+      lines: Array<{
+        itemId: string;
+        qtyReceived: number;
+        costPrice?: number;
+      }>;
+    },
+    tx: any = prisma
+  ) {
+    const entries = params.lines.map(line => ({
+      id: uuidv4(),
+      org_id: params.orgId,
+      item_id: line.itemId,
+      location_id: params.locationId,
+      qty_delta: line.qtyReceived,
+      movement_type: MovementType.receipt,
+      cost_price: line.costPrice || 0,
+      reference_id: params.grnId,
+      reference_type: 'GOODS_RECEIPT'
+    }));
+
+    if (entries.length > 0) {
+      await tx.stock_ledger.createMany({
+        data: entries
+      });
+    }
+  }
+
+  /**
    * Retrieves current stock level for an item across all locations or a specific location.
    */
   static async getStockLevel(orgId: string, itemId: string, locationId?: string) {

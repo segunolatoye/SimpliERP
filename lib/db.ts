@@ -9,8 +9,13 @@ const globalForPrisma = globalThis as unknown as {
 
 export const getPrisma = () => {
   if (!globalForPrisma.prisma) {
-    const connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL;
-    const pool = new Pool({ connectionString })
+    let connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL || '';
+    connectionString = connectionString.replace(/(\?|&)sslmode=require/g, '');
+    const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+    const pool = new Pool({ 
+      connectionString,
+      ssl: isLocal ? undefined : { rejectUnauthorized: false }
+    })
     const adapter = new PrismaPg(pool)
 
     globalForPrisma.prisma = new PrismaClient({

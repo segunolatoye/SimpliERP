@@ -16,6 +16,11 @@ export default async function PurchaseOrdersPage({ params }: { params: { tenant:
     select: { id: true, name: true, sku: true, cost_price: true }
   });
 
+  const locations = await prisma.location.findMany({
+    where: { org_id: orgMember.org_id, deleted_at: null, status: 'Active' },
+    select: { id: true, name: true }
+  });
+
   return (
     <AppLayout 
       userName={user.user_metadata?.full_name || user.email || 'User'}
@@ -28,6 +33,7 @@ export default async function PurchaseOrdersPage({ params }: { params: { tenant:
           orders={orders} 
           vendors={vendors}
           items={items}
+          locations={locations}
         />
       </div>
     </AppLayout>
