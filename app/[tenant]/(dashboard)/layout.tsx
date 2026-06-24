@@ -31,21 +31,13 @@ export default async function ProtectedLayout({
 
   const org = await prisma.organisations.findFirst({
     where: { slug: tenant },
-    include: { general_preferences: true }
+    select: { id: true }
   });
   
-  if (org?.general_preferences?.enabled_modules) {
-    try {
-      // Prisma Json fields might be typed as JsonValue, which can be an array
-      const modules = org.general_preferences.enabled_modules as any;
-      if (Array.isArray(modules)) {
-        enabledModules = modules.map(m => String(m).toLowerCase());
-      } else if (typeof modules === 'string') {
-        enabledModules = JSON.parse(modules).map((m: any) => String(m).toLowerCase());
-      }
-    } catch (e) {
-      console.error("Failed to parse enabled_modules", e);
-    }
+  if (org) {
+    const { getTenantLimits } = await import("@/lib/billing/quota");
+    const limits = await getTenantLimits(org.id);
+    enabledModules = limits.modules as string[];
   }
 
   return (

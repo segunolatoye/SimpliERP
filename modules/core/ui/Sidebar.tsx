@@ -66,11 +66,22 @@ type SidebarProps = {
   userRole?: string;
   orgName?: string;
   orgSlug?: string;
+  enabledModules?: string[];
 };
 
-export function Sidebar({ userName = 'User', userRole = 'Member', orgName = 'Workspace', orgSlug = '' }: SidebarProps) {
+export function Sidebar({ userName = 'User', userRole = 'Member', orgName = 'Workspace', orgSlug = '', enabledModules = [] }: SidebarProps) {
   const pathname = usePathname();
   const tenantBase = orgSlug ? `/${orgSlug}` : '';
+
+  // Filter groups based on enabled modules
+  const filteredNavGroups = navGroups.filter(group => {
+    if (group.title === "MAIN NAVIGATION" || group.title === "SYSTEM") return true; // Always visible
+    if (group.title === "SALES" && !enabledModules.includes("sales")) return false;
+    if (group.title === "PURCHASING" && !enabledModules.includes("purchasing")) return false;
+    if (group.title === "INVENTORY" && !enabledModules.includes("inventory")) return false;
+    if (group.title === "FINANCE" && !enabledModules.includes("finance")) return false;
+    return true;
+  });
 
   // Compute initials from the user's full name
   const initials = userName
@@ -104,7 +115,7 @@ export function Sidebar({ userName = 'User', userRole = 'Member', orgName = 'Wor
 
       {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-6 custom-scrollbar">
-        {navGroups.map((group, idx) => (
+        {filteredNavGroups.map((group, idx) => (
           <div key={idx} className="space-y-1">
             {group.title !== "MAIN NAVIGATION" && (
               <h3 className="px-3 text-[11px] font-semibold text-slate-500 tracking-wider mb-2 mt-4">

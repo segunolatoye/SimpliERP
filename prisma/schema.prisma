@@ -498,22 +498,22 @@ model dashboards {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model delivery_notes {
-  id            String          @id
-  org_id        String
-  so_id         String
-  shipped_at    DateTime?
-  carrier       String?
-  tracking_no   String?
-  created_at    DateTime        @default(now())
-  updated_at    DateTime
-  status        String          @default("draft")
-  deleted_at    DateTime?
-  location_id   String
-  locations     Location        @relation(fields: [location_id], references: [id])
-  organisations organisations   @relation(fields: [org_id], references: [id])
-  sales_orders  sales_orders    @relation(fields: [so_id], references: [id])
-  invoices      invoices[]
-  sales_returns sales_returns[]
+  id                  String                @id
+  org_id              String
+  so_id               String
+  shipped_at          DateTime?
+  carrier             String?
+  tracking_no         String?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime
+  status              String                @default("draft")
+  deleted_at          DateTime?
+  location_id         String
+  locations           Location              @relation(fields: [location_id], references: [id])
+  organisations       organisations         @relation(fields: [org_id], references: [id])
+  sales_orders        sales_orders          @relation(fields: [so_id], references: [id])
+  invoices            invoices[]
+  sales_returns       sales_returns[]
   delivery_note_lines delivery_note_lines[]
 
   @@index([deleted_at])
@@ -996,6 +996,10 @@ model organisations {
   vendors                   vendors[]
   approval_workflows        approval_workflows[]
   approval_requests         approval_requests[]
+  subscriptions             subscriptions?
+  usageCounters             usage_counters[]
+  addOns                    add_ons[]
+  billingEvents             billing_events[]
 
   @@index([deleted_at])
 }
@@ -1067,28 +1071,28 @@ model pipelines {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model po_lines {
-  id                 String          @id
+  id                 String              @id
   org_id             String
   po_id              String
   item_id            String
   variant_id         String?
   qty_ordered        Int
-  qty_received       Int             @default(0)
+  qty_received       Int                 @default(0)
   unit_price         Float
-  tax_rate           Float           @default(0)
+  tax_rate           Float               @default(0)
   line_total         Float
-  fulfillment_method String          @default("standard")
-  requires_grn_match Boolean         @default(true)
+  fulfillment_method String              @default("standard")
+  requires_grn_match Boolean             @default(true)
   grn_skip_reason    String?
-  created_at         DateTime        @default(now())
+  created_at         DateTime            @default(now())
   updated_at         DateTime
   deleted_at         DateTime?
   gr_lines           gr_lines[]
   vendor_bill_lines  vendor_bill_lines[]
-  items              Item            @relation(fields: [item_id], references: [id])
-  organisations      organisations   @relation(fields: [org_id], references: [id])
-  purchase_orders    purchase_orders @relation(fields: [po_id], references: [id])
-  item_variants      item_variants?  @relation(fields: [variant_id], references: [id])
+  items              Item                @relation(fields: [item_id], references: [id])
+  organisations      organisations       @relation(fields: [org_id], references: [id])
+  purchase_orders    purchase_orders     @relation(fields: [po_id], references: [id])
+  item_variants      item_variants?      @relation(fields: [variant_id], references: [id])
 
   @@index([deleted_at])
   @@index([org_id, created_at])
@@ -1277,27 +1281,27 @@ model sales_returns {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model so_lines {
-  id            String         @id
-  org_id        String
-  so_id         String
-  item_id       String
-  variant_id    String?
-  qty_ordered   Int
-  qty_delivered Int            @default(0)
-  unit_price    Float
-  tax_rate      Float          @default(0)
-  discount_pct  Float          @default(0)
-  line_total    Float
-  requires_delivery_match Boolean @default(true)
-  created_at    DateTime       @default(now())
-  updated_at    DateTime
-  deleted_at    DateTime?
-  items         Item           @relation(fields: [item_id], references: [id])
-  organisations organisations  @relation(fields: [org_id], references: [id])
-  sales_orders  sales_orders   @relation(fields: [so_id], references: [id])
-  item_variants item_variants? @relation(fields: [variant_id], references: [id])
-  delivery_note_lines delivery_note_lines[]
-  invoice_lines       invoice_lines[]
+  id                      String                @id
+  org_id                  String
+  so_id                   String
+  item_id                 String
+  variant_id              String?
+  qty_ordered             Int
+  qty_delivered           Int                   @default(0)
+  unit_price              Float
+  tax_rate                Float                 @default(0)
+  discount_pct            Float                 @default(0)
+  line_total              Float
+  requires_delivery_match Boolean               @default(true)
+  created_at              DateTime              @default(now())
+  updated_at              DateTime
+  deleted_at              DateTime?
+  items                   Item                  @relation(fields: [item_id], references: [id])
+  organisations           organisations         @relation(fields: [org_id], references: [id])
+  sales_orders            sales_orders          @relation(fields: [so_id], references: [id])
+  item_variants           item_variants?        @relation(fields: [variant_id], references: [id])
+  delivery_note_lines     delivery_note_lines[]
+  invoice_lines           invoice_lines[]
 
   @@index([deleted_at])
   @@index([org_id, created_at])
@@ -1468,22 +1472,22 @@ model units {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model vendor_bills {
-  id              String            @id
-  org_id          String
-  vendor_id       String
-  po_id           String?
-  invoice_no      String?
-  invoice_date    DateTime?
-  due_date        DateTime?
-  status          BillStatus        @default(draft)
-  total_amount    Float             @default(0)
-  created_at      DateTime          @default(now())
-  updated_at      DateTime
-  deleted_at      DateTime?
-  organisations   organisations     @relation(fields: [org_id], references: [id])
-  purchase_orders purchase_orders?  @relation(fields: [po_id], references: [id])
-  vendors         vendors           @relation(fields: [vendor_id], references: [id])
-  vendor_payments vendor_payments[]
+  id                String              @id
+  org_id            String
+  vendor_id         String
+  po_id             String?
+  invoice_no        String?
+  invoice_date      DateTime?
+  due_date          DateTime?
+  status            BillStatus          @default(draft)
+  total_amount      Float               @default(0)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime
+  deleted_at        DateTime?
+  organisations     organisations       @relation(fields: [org_id], references: [id])
+  purchase_orders   purchase_orders?    @relation(fields: [po_id], references: [id])
+  vendors           vendors             @relation(fields: [vendor_id], references: [id])
+  vendor_payments   vendor_payments[]
   vendor_bill_lines vendor_bill_lines[]
 
   @@index([deleted_at])
@@ -1492,17 +1496,17 @@ model vendor_bills {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model vendor_bill_lines {
-  id              String         @id
-  org_id          String
-  vendor_bill_id  String
-  po_line_id      String?
-  item_id         String
-  qty             Int
-  unit_price      Float
-  line_total      Float
-  vendor_bills    vendor_bills   @relation(fields: [vendor_bill_id], references: [id], onDelete: Cascade)
-  po_lines        po_lines?      @relation(fields: [po_line_id], references: [id])
-  items           Item           @relation(fields: [item_id], references: [id])
+  id             String       @id
+  org_id         String
+  vendor_bill_id String
+  po_line_id     String?
+  item_id        String
+  qty            Int
+  unit_price     Float
+  line_total     Float
+  vendor_bills   vendor_bills @relation(fields: [vendor_bill_id], references: [id], onDelete: Cascade)
+  po_lines       po_lines?    @relation(fields: [po_line_id], references: [id])
+  items          Item         @relation(fields: [item_id], references: [id])
 
   @@index([vendor_bill_id])
 }
@@ -1526,31 +1530,31 @@ model vendor_payments {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model delivery_note_lines {
-  id               String          @id
+  id               String  @id
   delivery_note_id String
   so_line_id       String?
   item_id          String
   qty_delivered    Int
-  
-  delivery_notes   delivery_notes  @relation(fields: [delivery_note_id], references: [id], onDelete: Cascade)
-  so_lines         so_lines?       @relation(fields: [so_line_id], references: [id])
-  items            Item            @relation(fields: [item_id], references: [id])
+
+  delivery_notes delivery_notes @relation(fields: [delivery_note_id], references: [id], onDelete: Cascade)
+  so_lines       so_lines?      @relation(fields: [so_line_id], references: [id])
+  items          Item           @relation(fields: [item_id], references: [id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model invoice_lines {
-  id               String          @id
-  invoice_id       String
-  so_line_id       String?
-  item_id          String
-  qty_billed       Int
-  unit_price       Float
-  tax_rate         Float           @default(0)
-  line_total       Float
-  
-  invoices         invoices        @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
-  so_lines         so_lines?       @relation(fields: [so_line_id], references: [id])
-  items            Item            @relation(fields: [item_id], references: [id])
+  id         String  @id
+  invoice_id String
+  so_line_id String?
+  item_id    String
+  qty_billed Int
+  unit_price Float
+  tax_rate   Float   @default(0)
+  line_total Float
+
+  invoices invoices  @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+  so_lines so_lines? @relation(fields: [so_line_id], references: [id])
+  items    Item      @relation(fields: [item_id], references: [id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -1736,4 +1740,73 @@ enum SOStatus {
 enum TransactionType {
   credit
   debit
+}
+
+// ------------------------------------------------------
+// BILLING & SUBSCRIPTION MODELS (Phase 7)
+// ------------------------------------------------------
+
+model plans {
+  id               String   @id @default(uuid())
+  tier             String   @unique // "free" | "starter" | "growth" | "business" | "enterprise"
+  priceMonthlyKobo Int
+  priceAnnualKobo  Int?
+  paystackPlanCode String? // null for free / custom enterprise
+  limits           Json // serialized PlanLimits
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  subscriptions subscriptions[]
+}
+
+model subscriptions {
+  id                   String    @id @default(uuid())
+  tenantId             String    @unique
+  planId               String
+  plan                 plans     @relation(fields: [planId], references: [id])
+  billingCycle         String // "monthly" | "annual"
+  status               String // "active" | "past_due" | "cancelled" | "trialing"
+  paystackSubCode      String?
+  paystackCustomerCode String?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  organisations organisations @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model usage_counters {
+  id          String   @id @default(uuid())
+  tenantId    String
+  metric      String // "invoices_this_month" | "active_skus" | "active_users" | "active_locations"
+  periodStart DateTime // month bucket for monthly-reset metrics; null/epoch for point-in-time metrics
+  count       Int      @default(0)
+
+  organisations organisations @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, metric, periodStart])
+}
+
+model add_ons {
+  id        String   @id @default(uuid())
+  tenantId  String
+  type      String // "extra_user" | "extra_location" | "sms_credits" | "custom_domain"
+  quantity  Int      @default(1)
+  priceKobo Int
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  organisations organisations @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model billing_events {
+  id          String   @id @default(uuid())
+  tenantId    String
+  type        String // "invoice_created" | "payment_succeeded" | "payment_failed" | "plan_changed" | "subscription_cancelled"
+  paystackRef String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  organisations organisations @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }

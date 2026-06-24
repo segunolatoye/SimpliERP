@@ -46,3 +46,19 @@ export class RateLimitError extends AppError {
     super('RATE_LIMITED', message, 429, meta);
   }
 }
+
+export class QuotaExceededError extends AppError {
+  constructor(
+    public metric: string,
+    public limit: number,
+    public current: number,
+    public upgradeUrl: string = '/settings/billing'
+  ) {
+    super(
+      'QUOTA_EXCEEDED',
+      `You have exceeded the quota for ${metric}.`,
+      402, // Payment Required
+      { metric, limit, current, upgradeUrl }
+    );
+  }
+}

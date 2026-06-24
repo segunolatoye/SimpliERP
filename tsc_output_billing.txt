@@ -1,0 +1,76 @@
+.next/dev/types/validator.ts(423,31): error TS2344: Type 'typeof import("/home/segunolatoye/Downloads/SimpliERP/app/api/[tenant]/reports/ar-summary/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/[tenant]/reports/ar-summary">'.
+  Types of property 'GET' are incompatible.
+    Type '(request: NextRequest, { params }: { params: { tenant: string; }; }) => Promise<NextResponse<unknown>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ tenant: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ tenant: string; }>; }' is not assignable to type '{ params: { tenant: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'tenant' is missing in type 'Promise<{ tenant: string; }>' but required in type '{ tenant: string; }'.
+.next/dev/types/validator.ts(432,31): error TS2344: Type 'typeof import("/home/segunolatoye/Downloads/SimpliERP/app/api/[tenant]/reports/stock-balance/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/[tenant]/reports/stock-balance">'.
+  Types of property 'GET' are incompatible.
+    Type '(request: NextRequest, { params }: { params: { tenant: string; }; }) => Promise<NextResponse<unknown>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ tenant: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ tenant: string; }>; }' is not assignable to type '{ params: { tenant: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'tenant' is missing in type 'Promise<{ tenant: string; }>' but required in type '{ tenant: string; }'.
+app/[tenant]/(dashboard)/dashboard/page.tsx(34,65): error TS2322: Type '"posted"' is not assignable to type 'InvoiceStatus | EnumInvoiceStatusFilter<"invoices"> | undefined'.
+app/[tenant]/(dashboard)/dashboard/page.tsx(38,25): error TS18048: 'arAgg._sum' is possibly 'undefined'.
+app/[tenant]/finance/accounts/page.tsx(3,75): error TS2307: Cannot find module '@/components/ui/card' or its corresponding type declarations.
+app/[tenant]/finance/accounts/page.tsx(4,24): error TS2307: Cannot find module '@/components/ui/button' or its corresponding type declarations.
+app/[tenant]/purchases/orders/page.tsx(20,58): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'LocationWhereInput'.
+app/[tenant]/sales/deliveries/page.tsx(19,58): error TS2353: Object literal may only specify known properties, and 'type' does not exist in type 'LocationWhereInput'.
+app/api/[tenant]/billing/checkout/route.ts(42,23): error TS2339: Property 'paystackPlanCode' does not exist on type 'PlanDefinition'.
+lib/billing/quota.ts(41,37): error TS2551: Property 'users' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'user'?
+lib/billing/quota.ts(52,37): error TS2551: Property 'Location' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'location'?
+modules/finance/ui/ChartOfAccountsTable.tsx(10,8): error TS2307: Cannot find module '@/components/ui/table' or its corresponding type declarations.
+modules/finance/ui/ChartOfAccountsTable.tsx(11,23): error TS2307: Cannot find module '@/components/ui/badge' or its corresponding type declarations.
+modules/inventory/repositories/ItemRepository.ts(1,24): error TS2307: Cannot find module '../../../../lib/db' or its corresponding type declarations.
+modules/inventory/repositories/ItemRepository.ts(19,13): error TS7006: Parameter 'item' implicitly has an 'any' type.
+modules/inventory/repositories/LocationRepository.ts(1,24): error TS2307: Cannot find module '../../../../lib/db' or its corresponding type declarations.
+modules/inventory/repositories/LocationRepository.ts(9,13): error TS7006: Parameter 'loc' implicitly has an 'any' type.
+modules/inventory/repositories/StockLedgerRepository.ts(1,24): error TS2307: Cannot find module '../../../../lib/db' or its corresponding type declarations.
+modules/purchases/repositories/grn.repository.ts(27,9): error TS2322: Type '{ id: string; org_id: string; po_id: string; location_id: string; received_by: string; notes: string | undefined; }' is not assignable to type '(Without<goods_receiptsCreateInput, goods_receiptsUncheckedCreateInput> & goods_receiptsUncheckedCreateInput) | (Without<...> & goods_receiptsCreateInput)'.
+  Type '{ id: string; org_id: string; po_id: string; location_id: string; received_by: string; notes: string | undefined; }' is not assignable to type 'Without<goods_receiptsCreateInput, goods_receiptsUncheckedCreateInput> & goods_receiptsUncheckedCreateInput'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; po_id: string; location_id: string; received_by: string; notes: string | undefined; }' but required in type 'goods_receiptsUncheckedCreateInput'.
+modules/purchases/repositories/grn.repository.ts(66,11): error TS2322: Type '{ id: string; org_id: string; gr_id: string; po_line_id: string; qty_received: number; batch_no: string | undefined; expiry_date: Date | undefined; }[]' is not assignable to type 'gr_linesCreateManyInput | gr_linesCreateManyInput[]'.
+  Type '{ id: string; org_id: string; gr_id: string; po_line_id: string; qty_received: number; batch_no: string | undefined; expiry_date: Date | undefined; }[]' is not assignable to type 'gr_linesCreateManyInput[]'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; gr_id: string; po_line_id: string; qty_received: number; batch_no: string | undefined; expiry_date: Date | undefined; }' but required in type 'gr_linesCreateManyInput'.
+modules/purchases/services/po.service.ts(34,38): error TS2339: Property 'fulfillment_method' does not exist on type '{ item_id: string; qty_ordered: number; unit_price: number; tax_rate: number; }'.
+modules/purchases/services/po.service.ts(58,24): error TS18047: 'po' is possibly 'null'.
+modules/purchases/services/po.service.ts(61,17): error TS18047: 'po' is possibly 'null'.
+modules/purchases/services/po.service.ts(63,11): error TS2353: Object literal may only specify known properties, and 'itemId' does not exist in type '{ poId: string; poLineId: string; }'.
+modules/purchases/services/vendor-bill.service.ts(66,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+modules/purchases/services/vendor-bill.service.ts(76,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+modules/purchases/ui/VendorBillForm.tsx(126,14): error TS2552: Cannot find name 'Input'. Did you mean 'oninput'?
+modules/purchases/ui/VendorBillForm.tsx(128,25): error TS7006: Parameter 'e' implicitly has an 'any' type.
+modules/reporting/services/report.service.ts(12,15): error TS2353: Object literal may only specify known properties, and 'qty' does not exist in type 'Stock_ledgerSumAggregateInputType'.
+modules/reporting/services/report.service.ts(20,36): error TS2551: Property 'Location' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'location'?
+modules/reporting/services/report.service.ts(26,42): error TS7006: Parameter 'l' implicitly has an 'any' type.
+modules/reporting/services/report.service.ts(33,19): error TS18048: 'record._sum' is possibly 'undefined'.
+modules/reporting/services/report.service.ts(33,31): error TS2339: Property 'qty' does not exist on type '{ qty_delta?: number | null | undefined; cost_price?: number | null | undefined; }'.
+modules/reporting/services/report.service.ts(41,31): error TS2339: Property 'name' does not exist on type '{}'.
+modules/reporting/services/report.service.ts(54,31): error TS2322: Type '"posted"' is not assignable to type 'InvoiceStatus | EnumInvoiceStatusFilter<"invoices"> | undefined'.
+modules/reporting/services/report.service.ts(62,28): error TS2339: Property 'customers' does not exist on type '{ status: InvoiceStatus; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; org_id: string; total_amount: number; customer_id: string; ... 4 more ...; delivery_note_id: string | null; }'.
+modules/reporting/services/report.service.ts(62,48): error TS2339: Property 'customers' does not exist on type '{ status: InvoiceStatus; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; org_id: string; total_amount: number; customer_id: string; ... 4 more ...; delivery_note_id: string | null; }'.
+modules/sales/repositories/delivery.repository.ts(9,7): error TS2322: Type '{ id: string; org_id: string; so_id: string; location_id: string; status: string; shipped_at: Date; delivery_note_lines: { create: { id: string; so_line_id: any; item_id: any; qty_delivered: any; }[]; }; }' is not assignable to type '(Without<delivery_notesCreateInput, delivery_notesUncheckedCreateInput> & delivery_notesUncheckedCreateInput) | (Without<...> & delivery_notesCreateInput)'.
+  Type '{ id: string; org_id: string; so_id: string; location_id: string; status: string; shipped_at: Date; delivery_note_lines: { create: { id: string; so_line_id: any; item_id: any; qty_delivered: any; }[]; }; }' is not assignable to type 'Without<delivery_notesCreateInput, delivery_notesUncheckedCreateInput> & delivery_notesUncheckedCreateInput'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; so_id: string; location_id: string; status: string; shipped_at: Date; delivery_note_lines: { create: { id: string; so_line_id: any; item_id: any; qty_delivered: any; }[]; }; }' but required in type 'delivery_notesUncheckedCreateInput'.
+modules/sales/repositories/sales-invoice.repository.ts(19,9): error TS2322: Type '"posted"' is not assignable to type 'InvoiceStatus | undefined'.
+modules/sales/repositories/so.repository.ts(10,7): error TS2322: Type '{ id: string; org_id: string; customer_id: any; notes: any; total_amount: any; status: "draft"; so_lines: { create: any; }; }' is not assignable to type '(Without<sales_ordersCreateInput, sales_ordersUncheckedCreateInput> & sales_ordersUncheckedCreateInput) | (Without<...> & sales_ordersCreateInput)'.
+  Type '{ id: string; org_id: string; customer_id: any; notes: any; total_amount: any; status: "draft"; so_lines: { create: any; }; }' is not assignable to type 'Without<sales_ordersCreateInput, sales_ordersUncheckedCreateInput> & sales_ordersUncheckedCreateInput'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; customer_id: any; notes: any; total_amount: any; status: "draft"; so_lines: { create: any; }; }' but required in type 'sales_ordersUncheckedCreateInput'.
+modules/sales/services/delivery.service.ts(21,27): error TS2339: Property 'settings' does not exist on type '{ status: string; name: string; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; location: string | null; address: string | null; logo_url: string | null; ... 22 more ...; enable_processing_loader: boolean; }'.
+modules/sales/services/delivery.service.ts(25,11): error TS7034: Variable 'validLines' implicitly has type 'any[]' in some locations where its type cannot be determined.
+modules/sales/services/delivery.service.ts(52,81): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/delivery.service.ts(54,64): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/delivery.service.ts(58,28): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/delivery.service.ts(65,15): error TS2353: Object literal may only specify known properties, and 'transaction_type' does not exist in type 'Without<stock_ledgerCreateInput, stock_ledgerUncheckedCreateInput> & stock_ledgerUncheckedCreateInput'.
+modules/sales/services/sales-invoice.service.ts(27,11): error TS2367: This comparison appears to be unintentional because the types 'InvoiceStatus' and '"cancelled"' have no overlap.
+modules/sales/services/sales-invoice.service.ts(38,11): error TS7034: Variable 'validLines' implicitly has type 'any[]' in some locations where its type cannot be determined.
+modules/sales/services/sales-invoice.service.ts(62,11): error TS2353: Object literal may only specify known properties, and 'orgId' does not exist in type '{ invoiceId: string; soLineId: string; itemId: string; skipReason?: string | null | undefined; }'.
+modules/sales/services/sales-invoice.service.ts(84,16): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/so.service.ts(17,27): error TS2339: Property 'settings' does not exist on type '{ status: string; name: string; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; location: string | null; address: string | null; logo_url: string | null; ... 22 more ...; enable_processing_loader: boolean; }'.
+modules/sales/services/so.service.ts(45,35): error TS2353: Object literal may only specify known properties, and 'type' does not exist in type 'LocationWhereInput'.
+modules/sales/services/so.service.ts(49,33): error TS2339: Property 'so_lines' does not exist on type '{ status: SOStatus; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; org_id: string; notes: string | null; total_amount: number; customer_id: string; quotation_id: string | null; delivery_date: Date | null; }'.
+modules/sales/services/so.service.ts(60,19): error TS2353: Object literal may only specify known properties, and 'transaction_type' does not exist in type 'Without<stock_ledgerCreateInput, stock_ledgerUncheckedCreateInput> & stock_ledgerUncheckedCreateInput'.

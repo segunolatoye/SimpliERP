@@ -4,10 +4,11 @@ import { ReportService } from '@/modules/reporting/services/report.service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { tenant: string } }
+  { params }: { params: Promise<{ tenant: string }> }
 ) {
   try {
-    const { orgMember } = await requirePermission(params.tenant, 'core.settings.view');
+    const { tenant } = await params;
+    const { orgMember } = await requirePermission(tenant, 'core.settings.view');
     
     const csvData = await ReportService.generateStockBalanceReport(orgMember.org_id);
 
@@ -15,7 +16,7 @@ export async function GET(
       status: 200,
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="stock_balance_${params.tenant}_${new Date().toISOString().split('T')[0]}.csv"`
+        'Content-Disposition': `attachment; filename="stock_balance_${tenant}_${new Date().toISOString().split('T')[0]}.csv"`
       }
     });
   } catch (error: any) {
