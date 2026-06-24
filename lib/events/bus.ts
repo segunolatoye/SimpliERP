@@ -38,6 +38,13 @@ class TypedEventBus {
       });
     });
   }
+
+  /**
+   * Check if an event has listeners
+   */
+  public hasListeners<T extends EventName>(event: T): boolean {
+    return this.emitter.listenerCount(event) > 0;
+  }
 }
 
 // Global singleton to prevent multiple instances during HMR in development
@@ -49,4 +56,14 @@ export const EventBus = globalForEventBus.eventBus ?? new TypedEventBus();
 
 if (process.env.NODE_ENV !== 'production') {
   globalForEventBus.eventBus = EventBus;
+}
+
+// Auto-register subscribers
+import { registerFinanceSubscribers } from '@/modules/finance/events/finance-subscriber';
+import { registerCoreEvents } from '@/modules/core/events';
+
+// Execute registrations once
+if (!globalForEventBus.eventBus || !globalForEventBus.eventBus.hasListeners('purchases.grn_completed')) {
+  registerCoreEvents();
+  registerFinanceSubscribers();
 }

@@ -33,6 +33,7 @@ export const updatePreferencesSchema = z.object({
   discount_type: z.enum(['none', 'item_level', 'transaction_level']).optional(),
   tax_inclusive_sales: z.enum(['inclusive', 'exclusive']).optional(),
   stock_tracking_mode: z.enum(['physical', 'accounting']).optional(),
+  sales_stock_allocation: z.enum(['on_so_creation', 'on_delivery']).optional(),
 });
 
 export const toggleModuleSchema = z.object({

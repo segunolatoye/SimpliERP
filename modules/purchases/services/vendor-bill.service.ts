@@ -71,6 +71,11 @@ export class VendorBillService {
       }
     }
 
+    await EventBus.emit('purchases.vendor_bill_posted', {
+      orgId,
+      billId: bill?.id
+    });
+
     return bill;
   }
 }

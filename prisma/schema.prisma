@@ -157,6 +157,8 @@ model Item {
   so_lines                                      so_lines[]
   stock_adjustments                             stock_adjustments[]
   stock_ledger                                  stock_ledger[]
+  delivery_note_lines                           delivery_note_lines[]
+  invoice_lines                                 invoice_lines[]
 
   @@unique([org_id, sku])
   @@index([deleted_at])
@@ -504,6 +506,7 @@ model delivery_notes {
   tracking_no   String?
   created_at    DateTime        @default(now())
   updated_at    DateTime
+  status        String          @default("draft")
   deleted_at    DateTime?
   location_id   String
   locations     Location        @relation(fields: [location_id], references: [id])
@@ -511,6 +514,7 @@ model delivery_notes {
   sales_orders  sales_orders    @relation(fields: [so_id], references: [id])
   invoices      invoices[]
   sales_returns sales_returns[]
+  delivery_note_lines delivery_note_lines[]
 
   @@index([deleted_at])
   @@index([org_id, created_at])
@@ -619,6 +623,7 @@ model invoices {
   organisations       organisations         @relation(fields: [org_id], references: [id])
   sales_orders        sales_orders?         @relation(fields: [so_id], references: [id])
   payment_allocations payment_allocations[]
+  invoice_lines       invoice_lines[]
 
   @@index([deleted_at])
   @@index([org_id, created_at])
@@ -1283,6 +1288,7 @@ model so_lines {
   tax_rate      Float          @default(0)
   discount_pct  Float          @default(0)
   line_total    Float
+  requires_delivery_match Boolean @default(true)
   created_at    DateTime       @default(now())
   updated_at    DateTime
   deleted_at    DateTime?
@@ -1290,6 +1296,8 @@ model so_lines {
   organisations organisations  @relation(fields: [org_id], references: [id])
   sales_orders  sales_orders   @relation(fields: [so_id], references: [id])
   item_variants item_variants? @relation(fields: [variant_id], references: [id])
+  delivery_note_lines delivery_note_lines[]
+  invoice_lines       invoice_lines[]
 
   @@index([deleted_at])
   @@index([org_id, created_at])
@@ -1514,6 +1522,35 @@ model vendor_payments {
   vendor_bills        vendor_bills      @relation(fields: [vendor_bill_id], references: [id])
 
   @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model delivery_note_lines {
+  id               String          @id
+  delivery_note_id String
+  so_line_id       String?
+  item_id          String
+  qty_delivered    Int
+  
+  delivery_notes   delivery_notes  @relation(fields: [delivery_note_id], references: [id], onDelete: Cascade)
+  so_lines         so_lines?       @relation(fields: [so_line_id], references: [id])
+  items            Item            @relation(fields: [item_id], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model invoice_lines {
+  id               String          @id
+  invoice_id       String
+  so_line_id       String?
+  item_id          String
+  qty_billed       Int
+  unit_price       Float
+  tax_rate         Float           @default(0)
+  line_total       Float
+  
+  invoices         invoices        @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+  so_lines         so_lines?       @relation(fields: [so_line_id], references: [id])
+  items            Item            @relation(fields: [item_id], references: [id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

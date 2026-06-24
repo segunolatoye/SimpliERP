@@ -1,0 +1,117 @@
+app/[tenant]/purchases/orders/page.tsx(20,58): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'LocationWhereInput'.
+app/[tenant]/sales/deliveries/page.tsx(19,58): error TS2353: Object literal may only specify known properties, and 'type' does not exist in type 'LocationWhereInput'.
+modules/finance/events/finance-subscriber.ts(124,27): error TS2339: Property 'qty_shipped' does not exist on type '{ so_lines: ({ items: { length: number | null; name: string; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; org_id: string; type: string; status: string; ... 41 more ...; track_serial: boolean; }; } & { ...; }) | null; } & { ...; }'.
+modules/finance/events/finance-subscriber.ts(124,41): error TS18047: 'line.so_lines' is possibly 'null'.
+modules/finance/services/account-lookup.service.ts(47,7): error TS2322: Type '{ id: string; org_id: string; code: SystemAccountCode; name: string; type: $Enums.AccountType; is_system: true; }' is not assignable to type '(Without<accountsCreateInput, accountsUncheckedCreateInput> & accountsUncheckedCreateInput) | (Without<...> & accountsCreateInput)'.
+  Type '{ id: string; org_id: string; code: SystemAccountCode; name: string; type: $Enums.AccountType; is_system: true; }' is not assignable to type 'Without<accountsCreateInput, accountsUncheckedCreateInput> & accountsUncheckedCreateInput'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; code: SystemAccountCode; name: string; type: $Enums.AccountType; is_system: true; }' but required in type 'accountsUncheckedCreateInput'.
+modules/inventory/repositories/ItemRepository.ts(1,24): error TS2307: Cannot find module '../../../../lib/db' or its corresponding type declarations.
+modules/inventory/repositories/ItemRepository.ts(19,13): error TS7006: Parameter 'item' implicitly has an 'any' type.
+modules/inventory/repositories/LocationRepository.ts(1,24): error TS2307: Cannot find module '../../../../lib/db' or its corresponding type declarations.
+modules/inventory/repositories/LocationRepository.ts(9,13): error TS7006: Parameter 'loc' implicitly has an 'any' type.
+modules/inventory/repositories/StockLedgerRepository.ts(1,24): error TS2307: Cannot find module '../../../../lib/db' or its corresponding type declarations.
+modules/purchases/repositories/grn.repository.ts(27,9): error TS2322: Type '{ id: string; org_id: string; po_id: string; location_id: string; received_by: string; notes: string | undefined; }' is not assignable to type '(Without<goods_receiptsCreateInput, goods_receiptsUncheckedCreateInput> & goods_receiptsUncheckedCreateInput) | (Without<...> & goods_receiptsCreateInput)'.
+  Type '{ id: string; org_id: string; po_id: string; location_id: string; received_by: string; notes: string | undefined; }' is not assignable to type 'Without<goods_receiptsCreateInput, goods_receiptsUncheckedCreateInput> & goods_receiptsUncheckedCreateInput'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; po_id: string; location_id: string; received_by: string; notes: string | undefined; }' but required in type 'goods_receiptsUncheckedCreateInput'.
+modules/purchases/repositories/grn.repository.ts(66,11): error TS2322: Type '{ id: string; org_id: string; gr_id: string; po_line_id: string; qty_received: number; batch_no: string | undefined; expiry_date: Date | undefined; }[]' is not assignable to type 'gr_linesCreateManyInput | gr_linesCreateManyInput[]'.
+  Type '{ id: string; org_id: string; gr_id: string; po_line_id: string; qty_received: number; batch_no: string | undefined; expiry_date: Date | undefined; }[]' is not assignable to type 'gr_linesCreateManyInput[]'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; gr_id: string; po_line_id: string; qty_received: number; batch_no: string | undefined; expiry_date: Date | undefined; }' but required in type 'gr_linesCreateManyInput'.
+modules/purchases/services/po.service.ts(34,38): error TS2339: Property 'fulfillment_method' does not exist on type '{ item_id: string; qty_ordered: number; unit_price: number; tax_rate: number; }'.
+modules/purchases/services/po.service.ts(58,24): error TS18047: 'po' is possibly 'null'.
+modules/purchases/services/po.service.ts(61,17): error TS18047: 'po' is possibly 'null'.
+modules/purchases/services/po.service.ts(63,11): error TS2353: Object literal may only specify known properties, and 'itemId' does not exist in type '{ poId: string; poLineId: string; }'.
+modules/purchases/services/vendor-bill.service.ts(66,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+modules/purchases/services/vendor-bill.service.ts(76,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+modules/purchases/ui/VendorBillForm.tsx(126,14): error TS2552: Cannot find name 'Input'. Did you mean 'oninput'?
+modules/purchases/ui/VendorBillForm.tsx(128,25): error TS7006: Parameter 'e' implicitly has an 'any' type.
+modules/sales/repositories/delivery.repository.ts(9,7): error TS2322: Type '{ id: string; org_id: string; so_id: string; location_id: string; status: string; shipped_at: Date; delivery_note_lines: { create: { id: string; so_line_id: any; item_id: any; qty_delivered: any; }[]; }; }' is not assignable to type '(Without<delivery_notesCreateInput, delivery_notesUncheckedCreateInput> & delivery_notesUncheckedCreateInput) | (Without<...> & delivery_notesCreateInput)'.
+  Type '{ id: string; org_id: string; so_id: string; location_id: string; status: string; shipped_at: Date; delivery_note_lines: { create: { id: string; so_line_id: any; item_id: any; qty_delivered: any; }[]; }; }' is not assignable to type 'Without<delivery_notesCreateInput, delivery_notesUncheckedCreateInput> & delivery_notesUncheckedCreateInput'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; so_id: string; location_id: string; status: string; shipped_at: Date; delivery_note_lines: { create: { id: string; so_line_id: any; item_id: any; qty_delivered: any; }[]; }; }' but required in type 'delivery_notesUncheckedCreateInput'.
+modules/sales/repositories/sales-invoice.repository.ts(19,9): error TS2322: Type '"posted"' is not assignable to type 'InvoiceStatus | undefined'.
+modules/sales/repositories/so.repository.ts(10,7): error TS2322: Type '{ id: string; org_id: string; customer_id: any; notes: any; total_amount: any; status: "draft"; so_lines: { create: any; }; }' is not assignable to type '(Without<sales_ordersCreateInput, sales_ordersUncheckedCreateInput> & sales_ordersUncheckedCreateInput) | (Without<...> & sales_ordersCreateInput)'.
+  Type '{ id: string; org_id: string; customer_id: any; notes: any; total_amount: any; status: "draft"; so_lines: { create: any; }; }' is not assignable to type 'Without<sales_ordersCreateInput, sales_ordersUncheckedCreateInput> & sales_ordersUncheckedCreateInput'.
+    Property 'updated_at' is missing in type '{ id: string; org_id: string; customer_id: any; notes: any; total_amount: any; status: "draft"; so_lines: { create: any; }; }' but required in type 'sales_ordersUncheckedCreateInput'.
+modules/sales/services/delivery.service.ts(21,27): error TS2339: Property 'settings' does not exist on type '{ name: string; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; location: string | null; address: string | null; logo_url: string | null; status: string; ... 22 more ...; enable_processing_loader: boolean; }'.
+modules/sales/services/delivery.service.ts(25,11): error TS7034: Variable 'validLines' implicitly has type 'any[]' in some locations where its type cannot be determined.
+modules/sales/services/delivery.service.ts(52,81): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/delivery.service.ts(54,64): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/delivery.service.ts(58,28): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/delivery.service.ts(65,15): error TS2353: Object literal may only specify known properties, and 'transaction_type' does not exist in type 'Without<stock_ledgerCreateInput, stock_ledgerUncheckedCreateInput> & stock_ledgerUncheckedCreateInput'.
+modules/sales/services/sales-invoice.service.ts(27,11): error TS2367: This comparison appears to be unintentional because the types 'InvoiceStatus' and '"cancelled"' have no overlap.
+modules/sales/services/sales-invoice.service.ts(38,11): error TS7034: Variable 'validLines' implicitly has type 'any[]' in some locations where its type cannot be determined.
+modules/sales/services/sales-invoice.service.ts(62,11): error TS2353: Object literal may only specify known properties, and 'orgId' does not exist in type '{ invoiceId: string; soLineId: string; itemId: string; skipReason?: string | null | undefined; }'.
+modules/sales/services/sales-invoice.service.ts(84,16): error TS7005: Variable 'validLines' implicitly has an 'any[]' type.
+modules/sales/services/so.service.ts(17,27): error TS2339: Property 'settings' does not exist on type '{ name: string; id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; location: string | null; address: string | null; logo_url: string | null; status: string; ... 22 more ...; enable_processing_loader: boolean; }'.
+modules/sales/services/so.service.ts(45,35): error TS2353: Object literal may only specify known properties, and 'type' does not exist in type 'LocationWhereInput'.
+modules/sales/services/so.service.ts(49,33): error TS2339: Property 'so_lines' does not exist on type '{ id: string; created_at: Date; updated_at: Date; deleted_at: Date | null; org_id: string; status: SOStatus; notes: string | null; total_amount: number; customer_id: string; quotation_id: string | null; delivery_date: Date | null; }'.
+modules/sales/services/so.service.ts(60,19): error TS2353: Object literal may only specify known properties, and 'transaction_type' does not exist in type 'Without<stock_ledgerCreateInput, stock_ledgerUncheckedCreateInput> & stock_ledgerUncheckedCreateInput'.
+
+  #  Node.js[22949]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xcb5137 node::Assert(node::AssertionInfo const&) [node]
+ 2: 0xc61934  [node]
+ 3: 0x78419ae47a76  [/lib/x86_64-linux-gnu/libc.so.6]
+ 4: 0x78419ae47bbe  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0xbc162f node::DefaultProcessExitHandlerInternal(node::Environment*, node::ExitCode) [node]
+ 6: 0xc20f1f node::Environment::Exit(node::ExitCode) [node]
+ 7: 0xf507cf v8::internal::FunctionCallbackArguments::Call(v8::internal::CallHandlerInfo) [node]
+ 8: 0xf5103d  [node]
+ 9: 0xf51505 v8::internal::Builtin_HandleApiCall(int, unsigned long*, v8::internal::Isolate*) [node]
+10: 0x195bdf6  [node]
+
+  #  Node.js[22949]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xcb5137 node::Assert(node::AssertionInfo const&) [node]
+ 2: 0xc61934  [node]
+ 3: 0xc61f4d node::TrapWebAssemblyOrContinue(int, siginfo_t*, void*) [node]
+ 4: 0x78419ae45330  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x158b8d0 v8::internal::tracing::TraceEventHelper::GetTracingController() [node]
+ 6: 0x10627d5 v8::internal::Isolate::CaptureDetailedStackTrace(int, v8::StackTrace::StackTraceOptions) [node]
+ 7: 0xef1040 v8::StackTrace::CurrentStackTrace(v8::Isolate*, int, v8::StackTrace::StackTraceOptions) [node]
+ 8: 0xcb50a8 node::GetCurrentStackTrace(v8::Isolate*, int) [node]
+ 9: 0xc01bbb node::DumpJavaScriptBacktrace(_IO_FILE*) [node]
+10: 0xcb5143 node::Assert(node::AssertionInfo const&) [node]
+11: 0xc61934  [node]
+12: 0x78419ae47a76  [/lib/x86_64-linux-gnu/libc.so.6]
+13: 0x78419ae47bbe  [/lib/x86_64-linux-gnu/libc.so.6]
+14: 0xbc162f node::DefaultProcessExitHandlerInternal(node::Environment*, node::ExitCode) [node]
+15: 0xc20f1f node::Environment::Exit(node::ExitCode) [node]
+16: 0xf507cf v8::internal::FunctionCallbackArguments::Call(v8::internal::CallHandlerInfo) [node]
+17: 0xf5103d  [node]
+18: 0xf51505 v8::internal::Builtin_HandleApiCall(int, unsigned long*, v8::internal::Isolate*) [node]
+19: 0x195bdf6  [node]
+Aborted (core dumped)
+
+  #  Node.js[22937]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xcb5137 node::Assert(node::AssertionInfo const&) [npm exec tsc --noEmit]
+ 2: 0xc61934  [npm exec tsc --noEmit]
+ 3: 0x754d99c47a76  [/lib/x86_64-linux-gnu/libc.so.6]
+ 4: 0x754d99c47bbe  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0xbc162f node::DefaultProcessExitHandlerInternal(node::Environment*, node::ExitCode) [npm exec tsc --noEmit]
+ 6: 0xc20f1f node::Environment::Exit(node::ExitCode) [npm exec tsc --noEmit]
+ 7: 0xf507cf v8::internal::FunctionCallbackArguments::Call(v8::internal::CallHandlerInfo) [npm exec tsc --noEmit]
+ 8: 0xf5103d  [npm exec tsc --noEmit]
+ 9: 0xf51505 v8::internal::Builtin_HandleApiCall(int, unsigned long*, v8::internal::Isolate*) [npm exec tsc --noEmit]
+10: 0x195bdf6  [npm exec tsc --noEmit]
+
+  #  Node.js[22937]: void node::ResetStdio() at ../src/node.cc:751
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xcb5137 node::Assert(node::AssertionInfo const&) [npm exec tsc --noEmit]
+ 2: 0xc61934  [npm exec tsc --noEmit]
+ 3: 0xc61f4d node::TrapWebAssemblyOrContinue(int, siginfo_t*, void*) [npm exec tsc --noEmit]
+ 4: 0x754d99c45330  [/lib/x86_64-linux-gnu/libc.so.6]
