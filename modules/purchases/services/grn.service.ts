@@ -33,7 +33,11 @@ export class GRNService {
       const poLine = po.po_lines.find(pl => pl.id === line.poLineId);
       if (!poLine) throw new Error(`PO Line ${line.poLineId} not found.`);
 
-      const remainingQty = poLine.qty - poLine.qty_received;
+      if (!poLine.requires_grn_match) {
+        throw new Error(`PO Line ${line.poLineId} does not require a Goods Receipt Note.`);
+      }
+
+      const remainingQty = poLine.qty_ordered - poLine.qty_received;
       if (line.qtyReceived > remainingQty) {
         throw new Error(`Cannot receive more than ordered for item ${poLine.item_id}. Remaining: ${remainingQty}, Attempted: ${line.qtyReceived}`);
       }

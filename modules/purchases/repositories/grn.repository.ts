@@ -80,7 +80,7 @@ export class GRNRepository {
         where: { po_id: params.poId }
       });
 
-      const isFullyReceived = poLines.every(pl => pl.qty_received >= pl.qty);
+      const isFullyReceived = poLines.every(pl => pl.qty_received >= pl.qty_ordered);
       
       if (isFullyReceived) {
         await tx.purchase_orders.update({

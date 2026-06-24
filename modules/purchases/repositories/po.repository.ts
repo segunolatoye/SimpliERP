@@ -27,6 +27,9 @@ export class PurchaseOrderRepository {
         unit_price: line.unit_price,
         tax_rate: line.tax_rate,
         line_total: line.qty_ordered * line.unit_price * (1 + line.tax_rate / 100),
+        fulfillment_method: line.fulfillment_method,
+        requires_grn_match: line.requires_grn_match,
+        grn_skip_reason: line.grn_skip_reason,
         updated_at: new Date()
       }));
 

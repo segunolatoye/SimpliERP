@@ -26,6 +26,7 @@ export async function createPurchaseOrderAction(tenantSlug: string, payload: any
 }
 
 import { GRNService } from '@/modules/purchases/services/grn.service';
+import { VendorBillService } from '@/modules/purchases/services/vendor-bill.service';
 
 export async function receiveGoodsAction(tenantSlug: string, payload: any) {
   const { user, orgMember } = await requirePermission(tenantSlug, 'purchases.manage');
@@ -33,4 +34,12 @@ export async function receiveGoodsAction(tenantSlug: string, payload: any) {
   await GRNService.processReceipt(tenantSlug, orgMember.org_id, user.id, payload);
   
   revalidatePath(`/${tenantSlug}/purchases/orders`);
+}
+
+export async function postVendorBillAction(tenantSlug: string, payload: any) {
+  const { user, orgMember } = await requirePermission(tenantSlug, 'purchases.manage');
+  
+  await VendorBillService.postBill(orgMember.org_id, payload, user.id);
+  
+  revalidatePath(`/${tenantSlug}/purchases/bills`);
 }

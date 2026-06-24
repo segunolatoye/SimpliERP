@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 model User {
@@ -121,6 +121,7 @@ model Item {
   selling_price                                 Float                 @default(0)
   track_bin                                     Boolean               @default(false)
   track_inventory                               Boolean               @default(true)
+  requires_physical_receipt                     Boolean               @default(true)
   type                                          String                @default("Goods")
   upc                                           String?
   weight                                        Float?
@@ -142,6 +143,7 @@ model Item {
   count_session_lines                           count_session_lines[]
   item_locations                                item_locations[]
   item_variants                                 item_variants[]
+  vendor_bill_lines                             vendor_bill_lines[]
   item_categories                               item_categories?      @relation(fields: [category_id], references: [id])
   accounts_items_inventory_account_idToaccounts accounts?             @relation("items_inventory_account_idToaccounts", fields: [inventory_account_id], references: [id])
   item_groups                                   item_groups?          @relation(fields: [item_group_id], references: [id])
@@ -1060,24 +1062,28 @@ model pipelines {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model po_lines {
-  id              String          @id
-  org_id          String
-  po_id           String
-  item_id         String
-  variant_id      String?
-  qty_ordered     Int
-  qty_received    Int             @default(0)
-  unit_price      Float
-  tax_rate        Float           @default(0)
-  line_total      Float
-  created_at      DateTime        @default(now())
-  updated_at      DateTime
-  deleted_at      DateTime?
-  gr_lines        gr_lines[]
-  items           Item            @relation(fields: [item_id], references: [id])
-  organisations   organisations   @relation(fields: [org_id], references: [id])
-  purchase_orders purchase_orders @relation(fields: [po_id], references: [id])
-  item_variants   item_variants?  @relation(fields: [variant_id], references: [id])
+  id                 String          @id
+  org_id             String
+  po_id              String
+  item_id            String
+  variant_id         String?
+  qty_ordered        Int
+  qty_received       Int             @default(0)
+  unit_price         Float
+  tax_rate           Float           @default(0)
+  line_total         Float
+  fulfillment_method String          @default("standard")
+  requires_grn_match Boolean         @default(true)
+  grn_skip_reason    String?
+  created_at         DateTime        @default(now())
+  updated_at         DateTime
+  deleted_at         DateTime?
+  gr_lines           gr_lines[]
+  vendor_bill_lines  vendor_bill_lines[]
+  items              Item            @relation(fields: [item_id], references: [id])
+  organisations      organisations   @relation(fields: [org_id], references: [id])
+  purchase_orders    purchase_orders @relation(fields: [po_id], references: [id])
+  item_variants      item_variants?  @relation(fields: [variant_id], references: [id])
 
   @@index([deleted_at])
   @@index([org_id, created_at])
@@ -1470,9 +1476,27 @@ model vendor_bills {
   purchase_orders purchase_orders?  @relation(fields: [po_id], references: [id])
   vendors         vendors           @relation(fields: [vendor_id], references: [id])
   vendor_payments vendor_payments[]
+  vendor_bill_lines vendor_bill_lines[]
 
   @@index([deleted_at])
   @@index([org_id, created_at])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model vendor_bill_lines {
+  id              String         @id
+  org_id          String
+  vendor_bill_id  String
+  po_line_id      String?
+  item_id         String
+  qty             Int
+  unit_price      Float
+  line_total      Float
+  vendor_bills    vendor_bills   @relation(fields: [vendor_bill_id], references: [id], onDelete: Cascade)
+  po_lines        po_lines?      @relation(fields: [po_line_id], references: [id])
+  items           Item           @relation(fields: [item_id], references: [id])
+
+  @@index([vendor_bill_id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
