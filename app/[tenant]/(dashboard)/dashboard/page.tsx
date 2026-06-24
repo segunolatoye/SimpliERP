@@ -23,13 +23,20 @@ export default async function Dashboard({ params }: { params: Promise<{ tenant: 
     totalItems,
     recentInvoices,
     recentJVs,
-    recentReceipts
+    recentReceipts,
+    arAgg,
+    apAgg
   ] = await Promise.all([
     orgId ? prisma.item.count({ where: { org_id: orgId } }) : 0,
     orgId ? prisma.invoices.findMany({ where: { org_id: orgId }, orderBy: { created_at: 'desc' }, take: 4 }) : [],
     orgId ? prisma.journal_entries.findMany({ where: { org_id: orgId }, orderBy: { created_at: 'desc' }, take: 4 }) : [],
     orgId ? prisma.goods_receipts.findMany({ where: { org_id: orgId }, orderBy: { created_at: 'desc' }, take: 3 }) : [],
+    orgId ? prisma.invoices.aggregate({ where: { org_id: orgId, status: 'posted' }, _sum: { total_amount: true } }) : null,
+    orgId ? prisma.vendor_bills.aggregate({ where: { org_id: orgId, status: 'posted' }, _sum: { total_amount: true } }) : null,
   ]);
+
+  const outstandingAR = arAgg?._sum.total_amount || 0;
+  const outstandingAP = apAgg?._sum.total_amount || 0;
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -61,8 +68,8 @@ export default async function Dashboard({ params }: { params: Promise<{ tenant: 
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 relative z-10">
           {[
             { label: "Operating Cash", value: formatMoney(0), change: "0%", desc: "vs last month" },
-            { label: "Outstanding AR", value: formatMoney(0), change: "0%", desc: "vs last month" },
-            { label: "Total Inventory Value", value: formatMoney(0), change: "0%", desc: "since yesterday" },
+            { label: "Outstanding AR", value: formatMoney(outstandingAR), change: "0%", desc: "vs last month" },
+            { label: "Outstanding AP", value: formatMoney(outstandingAP), change: "0%", desc: "since yesterday" },
             { label: "Stock Items", value: totalItems.toString(), change: "0", desc: "active SKU count" },
           ].map((stat, i) => (
             <div key={i} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-5 flex flex-col gap-1 transition-all hover:bg-white/15">
