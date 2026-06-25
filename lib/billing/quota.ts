@@ -40,7 +40,7 @@ export async function assertWithinQuota(
       if (limit !== null) {
         currentCount = await prisma.user.count({
           where: {
-            organization_members: { some: { org_id: tenantId } },
+            org_members: { some: { org_id: tenantId } },
           },
         });
       }
@@ -50,7 +50,7 @@ export async function assertWithinQuota(
       limit = limits.maxLocations;
       if (limit !== null) {
         currentCount = await prisma.location.count({
-          where: { org_id: tenantId, is_active: true },
+          where: { org_id: tenantId, deleted_at: null },
         });
       }
       break;
