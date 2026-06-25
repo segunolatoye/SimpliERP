@@ -35,7 +35,7 @@ const SETTINGS_STRUCTURE: SettingGroup[] = [
       { name: 'Locations', href: '/settings/locations', status: 'live', icon: Building2 },
       { name: 'Team & Roles', href: '/settings/team', status: 'live', icon: Users },
       { name: 'Preferences', href: '/settings/preferences', status: 'live', icon: Sliders },
-      { name: 'Billing & Plans', href: '/settings/billing', status: 'soon', icon: CreditCard },
+      { name: 'Billing & Plans', href: '/settings/billing', status: 'live', icon: CreditCard },
     ]
   },
   {
