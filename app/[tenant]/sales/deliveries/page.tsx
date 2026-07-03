@@ -16,7 +16,7 @@ export default async function DeliveryNotesPage({ params }: { params: { tenant: 
   const salesOrders = await getSalesOrdersAction(params.tenant);
 
   const locations = await prisma.location.findMany({
-    where: { org_id: orgMember.org_id, deleted_at: null, type: 'warehouse' }
+    where: { org_id: orgMember.org_id, deleted_at: null, location_type: 'warehouse' }
   });
 
   const items = await prisma.item.findMany({

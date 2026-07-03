@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/packages/ui-kit/components/ui/button';
+import { Input } from '@/packages/ui-kit/components/ui/input';
 import { Loader2, Check, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { postVendorBillAction } from '@/app/actions/purchases';

@@ -31,6 +31,7 @@ export class GRNRepository {
           location_id: params.locationId,
           received_by: params.receivedBy,
           notes: params.notes,
+          updated_at: new Date(),
         }
       });
 
@@ -48,6 +49,7 @@ export class GRNRepository {
           qty_received: line.qtyReceived,
           batch_no: line.batchNo,
           expiry_date: line.expiryDate,
+          updated_at: new Date(),
         });
 
         // Increment the qty_received on the PO Line

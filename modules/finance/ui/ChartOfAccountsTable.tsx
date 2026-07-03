@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/packages/ui-kit/components/ui/table";
+import { Badge } from "@/packages/ui-kit/components/ui/badge";
 import { format } from "date-fns";
 
 type Account = {

@@ -13,8 +13,15 @@ export class SalesOrderService {
     const itemMap = new Map(items.map(i => [i.id, i]));
 
     // 2. Fetch Organization Settings to see Stock Allocation strategy
-    const org = await prisma.organisations.findUnique({ where: { id: orgId } });
-    const settings = org?.settings as any || {};
+    const salesModule = await prisma.org_modules.findUnique({
+      where: {
+        org_id_module_name: {
+          org_id: orgId,
+          module_name: 'sales'
+        }
+      }
+    });
+    const settings = (salesModule?.settings as any) || {};
     const stockAllocationStrategy = settings.sales_stock_allocation || 'on_delivery';
 
     // 3. Map lines to determine requires_delivery_match
@@ -42,7 +49,7 @@ export class SalesOrderService {
       if (stockAllocationStrategy === 'on_so_creation') {
         // Find default warehouse to reserve from (simplification)
         const location = await tx.location.findFirst({
-          where: { org_id: orgId, type: 'warehouse' }
+          where: { org_id: orgId, location_type: 'warehouse' }
         });
 
         if (location) {
@@ -57,8 +64,8 @@ export class SalesOrderService {
                   org_id: orgId,
                   item_id: line.item_id,
                   location_id: location.id,
-                  transaction_type: 'issue', // Or a new 'reservation' type
-                  qty: line.qty_ordered, // positive value, but means reduction
+                  movement_type: 'sale',
+                  qty_delta: -line.qty_ordered,
                   reference_type: 'sales_order',
                   reference_id: so.id
                 }

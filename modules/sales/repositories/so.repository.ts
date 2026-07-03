@@ -14,6 +14,7 @@ export class SalesOrderRepository {
         notes: payload.notes,
         total_amount: payload.lines.reduce((sum: number, line: any) => sum + (line.qtyOrdered * line.unitPrice), 0),
         status: 'draft',
+        updated_at: new Date(),
         so_lines: {
           create: payload.lines.map((line: any) => ({
             id: uuidv4(),
@@ -23,7 +24,8 @@ export class SalesOrderRepository {
             unit_price: line.unitPrice,
             tax_rate: line.taxRate || 0,
             line_total: line.qtyOrdered * line.unitPrice,
-            requires_delivery_match: line.requires_delivery_match
+            requires_delivery_match: line.requires_delivery_match,
+            updated_at: new Date()
           }))
         }
       },
@@ -58,7 +60,7 @@ export class SalesOrderRepository {
   static async updateStatus(id: string, orgId: string, status: any) {
     return await prisma.sales_orders.updateMany({
       where: { id, org_id: orgId },
-      data: { status }
+      data: { status, updated_at: new Date() }
     });
   }
 }

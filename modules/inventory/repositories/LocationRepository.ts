@@ -1,4 +1,4 @@
-import { prisma } from '../../../../lib/db';
+import { prisma } from '../../../lib/db';
 
 export class LocationRepository {
   static async findById(orgId: string, id: string) {

@@ -54,6 +54,10 @@ export class PurchaseOrderService {
     // 5. Persist to DB via Repository
     const po = await PurchaseOrderRepository.create(orgId, poNumber, data, processedLines, totalAmount);
 
+    if (!po) {
+      throw new Error("Failed to create Purchase Order.");
+    }
+
     // 6. Emit Audit Event for dropships
     for (const line of po.po_lines) {
       if (line.fulfillment_method === "dropship") {

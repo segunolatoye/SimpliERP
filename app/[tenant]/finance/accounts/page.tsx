@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import { ChartOfAccountsTable } from '@/modules/finance/ui/ChartOfAccountsTable';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/packages/ui-kit/components/ui/card';
+import { Button } from '@/packages/ui-kit/components/ui/button';
 import { Plus } from 'lucide-react';
 
 export default async function AccountsPage({ params }: { params: { tenant: string } }) {

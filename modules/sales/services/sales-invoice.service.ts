@@ -24,7 +24,7 @@ export class SalesInvoiceService {
     // Calculate how much has already been billed for each SO line
     const previouslyBilledMap = new Map<string, number>();
     for (const inv of so.invoices) {
-      if (inv.status !== 'cancelled') {
+      if (inv.status !== 'void') {
         for (const iline of inv.invoice_lines) {
           if (iline.so_line_id) {
             const current = previouslyBilledMap.get(iline.so_line_id) || 0;

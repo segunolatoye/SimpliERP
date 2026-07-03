@@ -17,8 +17,15 @@ export class DeliveryService {
     const soLinesMap = new Map(so.so_lines.map(l => [l.id, l]));
 
     // 2. Fetch Organization Settings for Stock Allocation strategy
-    const org = await prisma.organisations.findUnique({ where: { id: orgId } });
-    const settings = org?.settings as any || {};
+    const salesModule = await prisma.org_modules.findUnique({
+      where: {
+        org_id_module_name: {
+          org_id: orgId,
+          module_name: 'sales'
+        }
+      }
+    });
+    const settings = (salesModule?.settings as any) || {};
     const stockAllocationStrategy = settings.sales_stock_allocation || 'on_delivery';
 
     // 3. Validation
@@ -62,8 +69,8 @@ export class DeliveryService {
               org_id: orgId,
               item_id: line.itemId,
               location_id: locationId,
-              transaction_type: 'issue',
-              qty: line.qty,
+              movement_type: 'sale',
+              qty_delta: -line.qty,
               reference_type: 'delivery_note',
               reference_id: delivery.id
             }

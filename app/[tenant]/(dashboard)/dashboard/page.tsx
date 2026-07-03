@@ -31,12 +31,12 @@ export default async function Dashboard({ params }: { params: Promise<{ tenant: 
     orgId ? prisma.invoices.findMany({ where: { org_id: orgId }, orderBy: { created_at: 'desc' }, take: 4 }) : [],
     orgId ? prisma.journal_entries.findMany({ where: { org_id: orgId }, orderBy: { created_at: 'desc' }, take: 4 }) : [],
     orgId ? prisma.goods_receipts.findMany({ where: { org_id: orgId }, orderBy: { created_at: 'desc' }, take: 3 }) : [],
-    orgId ? prisma.invoices.aggregate({ where: { org_id: orgId, status: 'posted' }, _sum: { total_amount: true } }) : null,
+    orgId ? prisma.invoices.aggregate({ where: { org_id: orgId, status: 'sent' }, _sum: { total_amount: true } }) : null,
     orgId ? prisma.vendor_bills.aggregate({ where: { org_id: orgId, status: 'posted' }, _sum: { total_amount: true } }) : null,
   ]);
 
-  const outstandingAR = arAgg?._sum.total_amount || 0;
-  const outstandingAP = apAgg?._sum.total_amount || 0;
+  const outstandingAR = arAgg?._sum?.total_amount || 0;
+  const outstandingAP = apAgg?._sum?.total_amount || 0;
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

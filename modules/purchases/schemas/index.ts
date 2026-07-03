@@ -15,7 +15,8 @@ export const poLineSchema = z.object({
   item_id: z.string().uuid("Invalid item ID"),
   qty_ordered: z.coerce.number().min(1, "Quantity must be at least 1"),
   unit_price: z.coerce.number().min(0, "Unit price cannot be negative"),
-  tax_rate: z.coerce.number().min(0).max(100).default(0)
+  tax_rate: z.coerce.number().min(0).max(100).default(0),
+  fulfillment_method: z.string().optional().default('standard')
 }).strict();
 
 export const purchaseOrderSchema = z.object({

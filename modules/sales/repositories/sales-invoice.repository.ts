@@ -16,8 +16,9 @@ export class SalesInvoiceRepository {
         so_id: soId,
         invoice_no: invoiceNo || invoiceId,
         invoice_date: new Date(),
-        status: 'posted',
+        status: 'sent',
         total_amount: totalAmount,
+        updated_at: new Date(),
         invoice_lines: {
           create: lines.map((line: any) => ({
             id: uuidv4(),

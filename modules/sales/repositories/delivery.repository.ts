@@ -13,6 +13,7 @@ export class DeliveryRepository {
         location_id: locationId,
         status: 'shipped',
         shipped_at: new Date(),
+        updated_at: new Date(),
         delivery_note_lines: {
           create: lines.map((line: any) => ({
             id: uuidv4(),

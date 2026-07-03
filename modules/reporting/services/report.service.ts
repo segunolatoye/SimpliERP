@@ -9,7 +9,7 @@ export class ReportService {
     const stockItems = await prisma.stock_ledger.groupBy({
       by: ['item_id', 'location_id'],
       where: { items: { org_id: orgId } },
-      _sum: { qty: true },
+      _sum: { qty_delta: true },
     });
 
     const items = await prisma.item.findMany({
@@ -17,7 +17,7 @@ export class ReportService {
       select: { id: true, sku: true, name: true, cost_price: true }
     });
 
-    const locations = await prisma.Location.findMany({
+    const locations = await prisma.location.findMany({
       where: { org_id: orgId },
       select: { id: true, name: true }
     });
@@ -30,7 +30,7 @@ export class ReportService {
     for (const record of stockItems) {
       const item = itemMap.get(record.item_id);
       const loc = locMap.get(record.location_id);
-      const qty = record._sum.qty || 0;
+      const qty = record._sum?.qty_delta || 0;
       
       if (!item || !loc || qty === 0) continue;
 
@@ -51,7 +51,7 @@ export class ReportService {
    */
   static async generateARReport(orgId: string): Promise<string> {
     const invoices = await prisma.invoices.findMany({
-      where: { org_id: orgId, status: 'posted' },
+      where: { org_id: orgId, status: 'sent' },
       include: { customers: { select: { name: true } } },
       orderBy: { due_date: 'asc' }
     });

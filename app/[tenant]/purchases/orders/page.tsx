@@ -17,7 +17,7 @@ export default async function PurchaseOrdersPage({ params }: { params: { tenant:
   });
 
   const locations = await prisma.location.findMany({
-    where: { org_id: orgMember.org_id, deleted_at: null, status: 'Active' },
+    where: { org_id: orgMember.org_id, deleted_at: null },
     select: { id: true, name: true }
   });
 

@@ -58,12 +58,16 @@ export class VendorBillService {
 
     const bill = await VendorBillRepository.create(orgId, payload, payload.lines);
 
+    if (!bill) {
+      throw new Error("Failed to create vendor bill.");
+    }
+
     // Emit audits for 2-way matches
     for (const line of payload.lines) {
       const poLine = po.po_lines.find(pl => pl.id === line.poLineId);
       if (poLine && !poLine.requires_grn_match) {
         await EventBus.emit('invoice_posted_without_grn', {
-          invoiceId: bill?.id,
+          invoiceId: bill.id,
           poLineId: poLine.id,
           itemId: poLine.item_id,
           grnSkipReason: poLine.grn_skip_reason
@@ -73,7 +77,7 @@ export class VendorBillService {
 
     await EventBus.emit('purchases.vendor_bill_posted', {
       orgId,
-      billId: bill?.id
+      billId: bill.id
     });
 
     return bill;
